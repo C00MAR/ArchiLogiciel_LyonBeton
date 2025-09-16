@@ -1,0 +1,129 @@
+// Sk-Modernist Font Definitions
+@font-face {
+  font-family: "Sk-Modernist";
+  src: url("https://db.onlinewebfonts.com/t/97386c1d7bdb684478ab36ec4e1129c8.eot");
+  src: url("https://db.onlinewebfonts.com/t/97386c1d7bdb684478ab36ec4e1129c8.eot?#iefix") format("embedded-opentype"),
+    url("https://db.onlinewebfonts.com/t/97386c1d7bdb684478ab36ec4e1129c8.woff2") format("woff2"),
+    url("https://db.onlinewebfonts.com/t/97386c1d7bdb684478ab36ec4e1129c8.woff") format("woff"),
+    url("https://db.onlinewebfonts.com/t/97386c1d7bdb684478ab36ec4e1129c8.ttf") format("truetype"),
+    url("https://db.onlinewebfonts.com/t/97386c1d7bdb684478ab36ec4e1129c8.svg#Sk-Modernist") format("svg");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Sk-Modernist Light";
+  src: url("https://db.onlinewebfonts.com/t/cd2adc492503743209c265f863fcee61.eot");
+  src: url("https://db.onlinewebfonts.com/t/cd2adc492503743209c265f863fcee61.eot?#iefix") format("embedded-opentype"),
+    url("https://db.onlinewebfonts.com/t/cd2adc492503743209c265f863fcee61.woff2") format("woff2"),
+    url("https://db.onlinewebfonts.com/t/cd2adc492503743209c265f863fcee61.woff") format("woff"),
+    url("https://db.onlinewebfonts.com/t/cd2adc492503743209c265f863fcee61.ttf") format("truetype"),
+    url("https://db.onlinewebfonts.com/t/cd2adc492503743209c265f863fcee61.svg#Sk-Modernist Light") format("svg");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Sk-Modernist Bold";
+  src: url("https://db.onlinewebfonts.com/t/164f4d9975414d4ed6b78f88b36865eb.eot");
+  src: url("https://db.onlinewebfonts.com/t/164f4d9975414d4ed6b78f88b36865eb.eot?#iefix") format("embedded-opentype"),
+    url("https://db.onlinewebfonts.com/t/164f4d9975414d4ed6b78f88b36865eb.woff2") format("woff2"),
+    url("https://db.onlinewebfonts.com/t/164f4d9975414d4ed6b78f88b36865eb.woff") format("woff"),
+    url("https://db.onlinewebfonts.com/t/164f4d9975414d4ed6b78f88b36865eb.ttf") format("truetype"),
+    url("https://db.onlinewebfonts.com/t/164f4d9975414d4ed6b78f88b36865eb.svg#Sk-Modernist Bold") format("svg");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+// Font Variables
+$font-primary: "Sk-Modernist", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+$font-light: "Sk-Modernist Light", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+$font-bold: "Sk-Modernist Bold", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+// Typography Mixins
+@mixin font-primary {
+  font-family: $font-primary;
+  font-weight: 400;
+}
+
+@mixin font-light {
+  font-family: $font-light;
+  font-weight: 300;
+}
+
+@mixin font-bold {
+  font-family: $font-bold;
+  font-weight: 700;
+}
+
+// Typography Classes
+.text-primary {
+  @include font-primary;
+}
+
+.text-light {
+  @include font-light;
+}
+
+.text-bold {
+  @include font-bold;
+}
+
+// Headings
+h1, .h1 {
+  @include font-bold;
+  font-size: 2.5rem;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+}
+
+h2, .h2 {
+  @include font-bold;
+  font-size: 2rem;
+  line-height: 1.3;
+  margin-bottom: 0.875rem;
+}
+
+h3, .h3 {
+  @include font-primary;
+  font-size: 1.5rem;
+  line-height: 1.4;
+  margin-bottom: 0.75rem;
+}
+
+h4, .h4 {
+  @include font-primary;
+  font-size: 1.25rem;
+  line-height: 1.4;
+  margin-bottom: 0.625rem;
+}
+
+h5, .h5 {
+  @include font-primary;
+  font-size: 1rem;
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+}
+
+h6, .h6 {
+  @include font-light;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+}
+
+// Body text
+body, p {
+  @include font-primary;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+// Small text
+small, .small {
+  @include font-light;
+  font-size: 0.875rem;
+}

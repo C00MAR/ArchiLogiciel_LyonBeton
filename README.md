@@ -27,3 +27,11 @@ You can check out the [create-t3-app GitHub repository](https://github.com/t3-os
 ## How do I deploy this?
 
 Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+
+
+1. Start MailDev : docker run -p 1080:1080 -p 1025:1025 maildev/maildev
+2. Start App : npm run dev
+2. Your app is at :
+http://localhost:3000
+3. View emails at :
+http://localhost:1080
