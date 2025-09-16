@@ -4,6 +4,8 @@ import { LatestPost } from "~/app/_components/post";
 import { auth } from "~/server/auth";
 import { api, HydrateClient } from "~/trpc/server";
 import styles from "./index.module.css";
+import Header from "./_components/Header/Header";
+import '~/styles/globals.css'
 
 export default async function Home() {
   const hello = await api.post.hello({ text: "from tRPC" });
@@ -15,6 +17,7 @@ export default async function Home() {
 
   return (
     <HydrateClient>
+      <Header />
       <main className={styles.main}>
         <div className={styles.container}>
           <h1 className={styles.title}>

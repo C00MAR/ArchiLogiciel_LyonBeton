@@ -1,11 +1,9 @@
-@import './variables';
-@import './typography';
+@import 'variables';
+@import 'typography';
 
 html,
 body {
-  padding: 0;
-  margin: 0;
-  font-family: $font-primary;
+  height: 300vh;
 }
 
 a {
@@ -15,4 +13,7 @@ a {
 
 * {
   box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  font-family: $font-primary;
 }
