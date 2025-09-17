@@ -5,7 +5,7 @@
   width: 100%;
   height: 100vh;
   overflow: hidden;
-  background: $background-primary;
+  background: $primary-color;
 }
 
 .videoContainer {
@@ -44,7 +44,7 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  background-color: $background-primary;
+  background-color: $primary-color;
 }
 
 .overlay {
@@ -53,7 +53,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba($background-primary, 0.1);
+  background: rgba($primary-color, 0.1);
   z-index: 2;
 }
 
@@ -69,7 +69,7 @@
 
 .navItem {
   font-family: 'Sk-Modernist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  color: $text-primary;
+  color: $secondary-color;
   text-decoration: none;
   font-size: 0.5rem;
   font-weight: 400;
@@ -101,7 +101,7 @@
   font-family: 'Sk-Modernist Bold', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: clamp(4rem, 15vw, 16rem);
   font-weight: 900;
-  color: $text-primary;
+  color: $secondary-color;
   margin: 0;
   letter-spacing: 0.07em;
   line-height: 0.85;
@@ -137,7 +137,7 @@
   font-family: 'Sk-Modernist Light', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 0.75rem;
   font-weight: 600;
-  color: $text-primary;
+  color: $secondary-color;
   letter-spacing: 0.1em;
   opacity: 0.8;
   display: block;
@@ -147,7 +147,7 @@
   font-family: 'Sk-Modernist Bold', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 3rem;
   font-weight: 700;
-  color: $text-primary;
+  color: $secondary-color;
   margin: 0;
   letter-spacing: -0.02em;
   line-height: 1.2;
@@ -171,7 +171,7 @@
 .scrollArrow {
   width: 24px;
   height: 24px;
-  border: 2px solid $text-primary;
+  border: 2px solid $secondary-color;
   border-top: none;
   border-left: none;
   transform: rotate(45deg);
