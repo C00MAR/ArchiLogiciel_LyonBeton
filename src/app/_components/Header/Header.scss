@@ -29,14 +29,21 @@
         height: 100%;
     }
 
-    &__shop {
+    &__shop{
+        border-right: 1px solid $secondary-color;
+    }
+
+    &__account {
+        border-left: 1px solid $secondary-color;
+    }
+
+    &__shop, &__account {
         display: flex;
         align-items: center;
         font-size: 9px;
         color: $secondary-color;
         padding: 20px;
         height: 100%;
-        border-right: 1px solid $secondary-color;
         text-transform: uppercase;
 
         &:hover {

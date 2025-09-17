@@ -1,0 +1,57 @@
+@import '../../../styles/variables';
+
+.card-element {
+    width: calc(100% / 4 - 12px);
+    aspect-ratio: 3/4;
+    background-position: center;
+    background-size: contain;
+    background-color: $primary-color;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    padding: 8px;
+    text-transform: uppercase;
+
+    &__info {
+        transform: translateY(calc(-100% - 8px));
+        transition: transform 0.3s ease-in-out;
+        display: flex;
+        align-items: flex-start;
+        flex-direction: column;
+
+        &-title{
+            font-weight: 600;
+            margin: 0;
+            font-size: 14px;
+        }
+
+        &-subtitle{
+            font-weight: 400;
+            margin: 0;
+            font-size: 12px;
+        }
+    }
+
+    &__data {
+        transform: translateY(calc(100% + 8px));
+        transition: transform 0.3s ease-in-out;
+        display: flex;
+        gap: 4px;
+        font-size: 8px;
+
+        &-price{
+            font-weight: 600;
+        }
+    }
+
+    &:hover {
+        .card-element {
+            &__info,
+            &__data {
+                transform: translateY(0);
+            }
+        }
+    }
+}

@@ -9,7 +9,7 @@ import bemCondition from "../../helpers/bemHelper";
 import "./Header.css";
 
 export default function Header() {
-    const [showHeader, setShowHeader] = useState(true);
+    const [showHeader, setShowHeader] = useState(false);
     const [showInputSearch, setShowInputSearch] = useState(false);
     const lastScrollY = useRef(0);
     const scrollTimeout = useRef<NodeJS.Timeout | null>(null);
@@ -19,7 +19,7 @@ export default function Header() {
     useEffect(() => {
         const handleScroll = () => {
             const currentScrollY = window.scrollY;
-            if (currentScrollY > lastScrollY.current && currentScrollY > 50) {
+            if (currentScrollY < 150 || currentScrollY > lastScrollY.current) {
                 setShowHeader(false);
             } else {
                 setShowHeader(true);
@@ -27,7 +27,11 @@ export default function Header() {
             lastScrollY.current = currentScrollY;
 
             if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
-            scrollTimeout.current = setTimeout(() => setShowHeader(true), 600);
+            scrollTimeout.current = setTimeout(() => {
+                if (currentScrollY > 0) {
+                    setShowHeader(true);
+                }
+            }, 600);
         };
 
         window.addEventListener("scroll", handleScroll);
@@ -42,7 +46,7 @@ export default function Header() {
             const newState = !prev;
             if (newState) {
                 setTimeout(() => inputRef.current?.focus(), 0);
-            } 
+            }
             return newState;
         });
     };
@@ -75,6 +79,9 @@ export default function Header() {
                     <img src={logo.src} alt="Lyon Beton" />
                 </Link>
                 <div className="header__actions">
+                    <Link href="/api/auth/signin" className="header__account">
+                        <span>Compte</span>
+                    </Link>
                     <span
                         className="header__actions-icon search"
                         onClick={toggleSearch}
