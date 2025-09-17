@@ -98,3 +98,47 @@ L'équipe
 
   return { text, html };
 }
+
+export function generatePasswordResetEmailTemplate(resetUrl: string, userName: string) {
+  const text = `
+Bonjour ${userName},
+
+Vous avez demandé à réinitialiser votre mot de passe. Pour créer un nouveau mot de passe, cliquez sur le lien ci-dessous :
+
+${resetUrl}
+
+Ce lien expirera dans 1 heure.
+
+Si vous n'avez pas demandé cette réinitialisation, vous pouvez ignorer cet email. Votre mot de passe actuel restera inchangé.
+
+Cordialement,
+L'équipe
+  `;
+
+  const html = `
+    <div>
+      <h2>Réinitialisation de votre mot de passe</h2>
+
+      <p>Bonjour ${userName},</p>
+
+      <p>Vous avez demandé à réinitialiser votre mot de passe. Pour créer un nouveau mot de passe, cliquez sur le bouton ci-dessous :</p>
+
+      <p>
+        <a href="${resetUrl}" style="display: inline-block; padding: 10px 20px; background-color: #dc3545; color: white; text-decoration: none; border-radius: 5px;">
+          Réinitialiser mon mot de passe
+        </a>
+      </p>
+
+      <p>Ou copiez ce lien dans votre navigateur :</p>
+      <p>${resetUrl}</p>
+
+      <p><small>Ce lien expirera dans 1 heure.</small></p>
+
+      <p>Si vous n'avez pas demandé cette réinitialisation, vous pouvez ignorer cet email. Votre mot de passe actuel restera inchangé.</p>
+
+      <p>Cordialement,<br>L'équipe</p>
+    </div>
+  `;
+
+  return { text, html };
+}
