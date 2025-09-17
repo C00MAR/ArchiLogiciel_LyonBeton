@@ -37,9 +37,14 @@
         border-left: 1px solid $secondary-color;
         transition: $transition-fast;
 
+        &.noBorder {
+            border: none;
+        }
+
         &.inversed {
             background: $secondary-color;
             color: $primary-color;
+            border-right: 1px solid $secondary-color;
 
             &:hover {
                 background: $primary-color;

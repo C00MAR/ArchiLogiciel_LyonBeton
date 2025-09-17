@@ -87,7 +87,7 @@ export default function Header() {
                             <Link href="/dashboard" className="header__account inversed">
                                 <span>Mon Compte</span>
                             </Link>
-                            <LogoutButton className="header__account">
+                            <LogoutButton className="header__account noBorder">
                                 Se déconnecter
                             </LogoutButton>
                         </>
