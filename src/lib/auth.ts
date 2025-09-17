@@ -1,9 +1,11 @@
 import NextAuth, { NextAuthConfig } from 'next-auth';
+import { PrismaAdapter } from '@auth/prisma-adapter';
 import Credentials from 'next-auth/providers/credentials';
 import { compare } from 'bcryptjs';
 import { prisma } from './prisma';
 
 export const authOptions: NextAuthConfig = {
+  adapter: PrismaAdapter(prisma),
   providers: [
     Credentials({
       name: 'credentials',
@@ -46,6 +48,11 @@ export const authOptions: NextAuthConfig = {
   ],
   session: {
     strategy: 'jwt',
+    maxAge: 24 * 60 * 60, // 24 heures
+    updateAge: 60 * 60, // Rotation toutes les heures
+  },
+  jwt: {
+    maxAge: 24 * 60 * 60, // 24 heures
   },
   cookies: {
     sessionToken: {
@@ -77,18 +84,33 @@ export const authOptions: NextAuthConfig = {
     }
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
+      // Lors de la première connexion, ajouter les données utilisateur au token
       if (user) {
         token.role = user.role;
         token.emailVerified = user.emailVerified;
       }
+
+      // Mise à jour périodique des données utilisateur
+      if (account?.provider === 'credentials' && token.sub) {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.sub },
+          select: { role: true, emailVerified: true }
+        });
+
+        if (dbUser) {
+          token.role = dbUser.role;
+          token.emailVerified = dbUser.emailVerified;
+        }
+      }
+
       return token;
     },
     async session({ session, token }) {
       if (session.user && token.sub) {
         session.user.id = token.sub;
         session.user.role = token.role as string;
-        session.user.emailVerified = token.emailVerified as Date;
+        session.user.emailVerified = token.emailVerified as Date | null;
       }
       return session;
     },
@@ -96,6 +118,7 @@ export const authOptions: NextAuthConfig = {
   pages: {
     signIn: '/login',
   },
+  secret: process.env.NEXTAUTH_SECRET,
 };
 
 export const { handlers, auth, signIn, signOut } = NextAuth(authOptions);
