@@ -96,7 +96,7 @@ export default function Hero({
                 return (
                   <Link
                     key={index}
-                    href={session ? "/dashboard" : "/login"}
+                    href={session ? "/account" : "/login"}
                     className={styles.navItem}
                   >
                     {session ? "COMPTE" : "SE CONNECTER"}

@@ -43,8 +43,7 @@ export default function LoginPage() {
       if (result?.error) {
         setError('Email ou mot de passe incorrect');
       } else if (result?.ok) {
-        // Rediriger vers la page d'origine ou dashboard par défaut
-        router.push(from || '/dashboard');
+        router.push(from || '/account');
       }
     } catch (error) {
       setError('Erreur de connexion');

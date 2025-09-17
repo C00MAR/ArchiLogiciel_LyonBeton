@@ -84,7 +84,7 @@ export default function Header() {
                 <div className="header__actions">
                     {session ? (
                         <>
-                            <Link href="/dashboard" className="header__account inversed">
+                            <Link href="/account" className="header__account inversed">
                                 <span>Mon Compte</span>
                             </Link>
                             <LogoutButton className="header__account noBorder">
