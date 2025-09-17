@@ -83,6 +83,10 @@ export default function LoginPage() {
         </button>
 
         <div>
+          <a href="/forgot-password">Mot de passe oublié ?</a>
+        </div>
+
+        <div>
           <span>
             Pas encore de compte ?{' '}
             <a href="/register">S'inscrire</a>
