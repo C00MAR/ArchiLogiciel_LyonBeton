@@ -22,7 +22,7 @@ interface HeroProps {
 }
 
 export default function Hero({
-  videoSrc = 'https://fr.lyon-beton.com/wp-content/uploads/sites/3/home_vid.webm',
+  videoSrc = '/assets/home_vid.webm',
   title = "LYON BETON",
   navigation = [
     { label: "BOUTIQUE", href: "/shop" },
@@ -56,18 +56,14 @@ export default function Hero({
       });
     };
 
-    const handleError = () => {
-      setIsVideoError(true);
-    };
+    video.load();
 
     video.addEventListener('loadeddata', handleLoadedData);
-    video.addEventListener('error', handleError);
 
     return () => {
       video.removeEventListener('loadeddata', handleLoadedData);
-      video.removeEventListener('error', handleError);
     };
-  }, []);
+  }, [videoSrc]);
 
   return (
     <section className={styles.hero}>
