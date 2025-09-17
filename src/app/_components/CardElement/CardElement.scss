@@ -1,7 +1,7 @@
 @import '../../../styles/variables';
 
 .card-element {
-    width: calc(100% / 4 - 12px);
+    width: 100%;
     aspect-ratio: 3/4;
     background-position: center;
     background-size: contain;
@@ -13,6 +13,7 @@
     position: relative;
     padding: 8px;
     text-transform: uppercase;
+    cursor: pointer;
 
     &__info {
         transform: translateY(calc(-100% - 8px));
