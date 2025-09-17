@@ -1,7 +1,8 @@
 import { auth } from "~/server/auth";
 import { api, HydrateClient } from "~/trpc/server";
 import Hero from "~/app/_components/Hero/Hero";
-import "~/styles/globals.css";
+import Header from "./_components/Header/Header";
+import '~/styles/globals.css'
 
 export default async function Home() {
   const session = await auth();
@@ -12,6 +13,7 @@ export default async function Home() {
 
   return (
     <HydrateClient>
+      <Header />
       <Hero session={session} />
     </HydrateClient>
   );
