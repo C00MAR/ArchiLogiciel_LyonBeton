@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
 import { hash } from 'bcryptjs';
 import { z } from 'zod';
+import crypto from 'crypto';
 import { prisma } from '~/lib/prisma';
+import { sendEmail, generateVerificationEmailTemplate } from '~/lib/email';
 
 const registerSchema = z.object({
   email: z.string().email('Email invalide'),
@@ -29,7 +31,7 @@ export async function POST(request: Request) {
 
     const passwordHash = await hash(password, 12);
 
-    await prisma.user.create({
+    const user = await prisma.user.create({
       data: {
         email,
         name,
@@ -37,8 +39,35 @@ export async function POST(request: Request) {
       },
     });
 
+    const token = crypto.randomBytes(32).toString('hex');
+    const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 heures
+
+    await prisma.verificationToken.create({
+      data: {
+        identifier: email,
+        token,
+        expires,
+      },
+    });
+
+    try {
+      const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+      const verificationUrl = `${baseUrl}/api/auth/email/verification/verify?token=${token}`;
+
+      const { text, html } = generateVerificationEmailTemplate(verificationUrl, name);
+
+      await sendEmail({
+        to: email,
+        subject: 'Vérifiez votre adresse email',
+        text,
+        html,
+      });
+    } catch (emailError) {
+      console.error('Erreur lors de l\'envoi de l\'email de vérification:', emailError);
+    }
+
     return NextResponse.json(
-      { message: 'Utilisateur créé avec succès' },
+      { message: 'Utilisateur créé avec succès. Vérifiez votre boîte mail.' },
       { status: 201 }
     );
   } catch (error) {

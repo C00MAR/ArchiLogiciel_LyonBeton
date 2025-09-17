@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { auth } from '~/lib/auth';
+import LogoutButton from '~/components/LogoutButton';
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -15,6 +16,8 @@ export default async function DashboardPage() {
       <p>Email: {session.user.email}</p>
       <p>Rôle: {session.user.role}</p>
       <p>Email vérifié: {session.user.emailVerified ? 'Oui' : 'Non'}</p>
+
+      <LogoutButton>Se déconnecter</LogoutButton>
     </div>
   );
 }
