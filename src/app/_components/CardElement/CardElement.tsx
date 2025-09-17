@@ -1,8 +1,9 @@
 "use client";
 
 import React from "react";
-import type { ProductType } from "./CardElement.type";
+import type { ProductType } from "../../types/Products";
 import "./CardElement.css";
+import Link from "next/link";
 
 type Props = {
     product: ProductType;
@@ -11,7 +12,7 @@ type Props = {
 export default function CardElement(props: Props) {
     const { title, subtitle, price, ref, id } = props.product;
     return (
-        <div className="card-element" style={{ backgroundImage: `url('/assets/products/${id}.webp')` }}>
+        <Link className="card-element" href={`product/${id}`} style={{ backgroundImage: `url('/product/${id}_0.webp')` }}>
             <div className="card-element__info">
                 <h3 className="card-element__info-title">
                     {title}
@@ -22,12 +23,12 @@ export default function CardElement(props: Props) {
             </div>
             <span className="card-element__data">
                 <span className="card-element__data-price">
-                    EUR {price}
+                    eur {price}
                 </span>
                 <span className="card-element__data-ref">
-                    {ref}
+                    ref. {ref}
                 </span>
             </span>
-        </div>
+        </Link>
     );
 }
