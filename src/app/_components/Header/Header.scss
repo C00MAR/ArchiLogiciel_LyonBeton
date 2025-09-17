@@ -35,6 +35,17 @@
 
     &__account {
         border-left: 1px solid $secondary-color;
+        transition: $transition-fast;
+
+        &.inversed {
+            background: $secondary-color;
+            color: $primary-color;
+
+            &:hover {
+                background: $primary-color;
+                color: $secondary-color;
+            }
+        }
     }
 
     &__shop, &__account {
