@@ -3,9 +3,9 @@ import "~/styles/globals.css";
 import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 
-import { TRPCReactProvider } from "~/trpc/react";
+import SessionProvider, { CartMergeOnLogin } from "~/components/SessionProvider";
 import { auth } from "~/lib/auth";
-import SessionProvider from "~/components/SessionProvider";
+import { TRPCReactProvider } from "~/trpc/react";
 import Header from "./_components/Header/Header";
 
 export const metadata: Metadata = {
@@ -28,8 +28,9 @@ export default async function RootLayout({
       <body className={geist.className}>
         <SessionProvider session={session}>
           <TRPCReactProvider>
-          <Header />
-          {children}
+            <Header />
+            <CartMergeOnLogin />
+            {children}
           </TRPCReactProvider>
         </SessionProvider>
       </body>

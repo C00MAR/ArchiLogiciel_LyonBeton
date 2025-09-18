@@ -1,6 +1,8 @@
 "use client";
 
+import { useSession } from "next-auth/react";
 import bemCondition from "~/app/helpers/bemHelper";
+import { api } from "~/trpc/react";
 import type { ProductType } from "../../types/Products";
 import "./ProductShop.css";
 
@@ -9,9 +11,29 @@ type Props = {
 };
 
 export default function ProductShop({ product }: Props) {
-    const { title, subtitle, price, description } = product;
+    const { title, subtitle, price, description, identifier } = product;
+    const { data: session } = useSession();
+    const utils = api.useUtils();
+    const addToCartMutation = api.cart.addToCart.useMutation({
+        onSuccess: async () => {
+            await utils.cart.getCurrent.invalidate();
+        },
+    });
 
-
+    const handleAddToCart = async () => {
+        const quantity = 1;
+        if (session?.user) {
+            await addToCartMutation.mutateAsync({ identifier, quantity });
+            return;
+        }
+        const key = "guest_cart";
+        const raw = typeof window !== "undefined" ? window.localStorage.getItem(key) : null;
+        const cart: Record<string, number> = raw ? JSON.parse(raw) : {};
+        cart[identifier] = (cart[identifier] ?? 0) + quantity;
+        if (typeof window !== "undefined") {
+            window.localStorage.setItem(key, JSON.stringify(cart));
+        }
+    };
 
     return (
         <div className="product-shop">
@@ -26,6 +48,7 @@ export default function ProductShop({ product }: Props) {
                 <button
                     type="button"
                     className="product-shop__button"
+                    onClick={handleAddToCart}
                 >
                     Ajouter au panier
                 </button>

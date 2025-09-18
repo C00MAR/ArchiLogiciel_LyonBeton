@@ -53,10 +53,14 @@ model User {
   image               String?
   passwordHash        String?
   role                String               @default("USER")
+  twoFactorEnabled    Boolean              @default(false)
+  twoFactorSecret     String?
+  backupCodes         String[]
   accounts            Account[]
   posts               Post[]
   sessions            Session[]
   passwordResetTokens PasswordResetToken[]
+  cart                Cart?
 }
 
 model VerificationToken {
@@ -79,16 +83,37 @@ model PasswordResetToken {
 }
 
 model Product {
-  id          Int      @id @default(autoincrement())
+  id          Int        @id @default(autoincrement())
   title       String
   subtitle    String
   description String
   price       Int
   imgNumber   Int
-  identifier  String   @unique
-  ref         String   @unique
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  identifier  String     @unique
+  ref         String     @unique
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  cartItems   CartItem[]
 
   @@index([title])
+}
+
+model Cart {
+  id        Int        @id @default(autoincrement())
+  userId    String?    @unique
+  user      User?      @relation(fields: [userId], references: [id])
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model CartItem {
+  id        Int     @id @default(autoincrement())
+  cartId    Int
+  cart      Cart    @relation(fields: [cartId], references: [id])
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int     @default(1)
+
+  @@unique([cartId, productId])
 }
