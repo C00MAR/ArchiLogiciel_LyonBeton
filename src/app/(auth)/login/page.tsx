@@ -41,7 +41,6 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        // Si erreur de connexion, vérifier si c'est à cause de 2FA
         try {
           const response = await fetch('/api/auth/check-2fa', {
             method: 'POST',
@@ -57,7 +56,6 @@ export default function LoginPage() {
             }
           }
         } catch {
-          // Si l'API fail, continuer avec l'erreur normale
         }
 
         setError('Email ou mot de passe incorrect');

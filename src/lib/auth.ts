@@ -46,7 +46,6 @@ export const authOptions: NextAuthConfig = {
         twoFactorVerified: { label: '2FA Verified', type: 'text' },
       },
       async authorize(credentials) {
-        // Mode connexion après vérification 2FA
         if (credentials?.userId && credentials?.twoFactorVerified === 'true') {
           const user = await prisma.user.findUnique({
             where: { id: credentials.userId },
@@ -73,7 +72,6 @@ export const authOptions: NextAuthConfig = {
           };
         }
 
-        // Mode connexion normale
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
@@ -105,7 +103,6 @@ export const authOptions: NextAuthConfig = {
           return null;
         }
 
-        // Si 2FA activé et pas encore vérifié, retourner null pour bloquer la session
         if (user.twoFactorEnabled && !credentials.twoFactorVerified) {
           return null;
         }
@@ -159,13 +156,10 @@ export const authOptions: NextAuthConfig = {
   },
   callbacks: {
     async signIn({ user, account }) {
-      // Pour OAuth (Google/GitHub), autoriser la connexion
       if (account?.provider !== 'credentials') {
         return true;
       }
 
-      // Pour les credentials, autoriser la connexion
-      // La redirection 2FA sera gérée côté client
       return true;
     },
     async jwt({ token, user }) {

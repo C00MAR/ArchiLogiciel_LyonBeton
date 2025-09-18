@@ -10,12 +10,21 @@ export const productsRouter = createTRPCRouter({
     return products;
   }),
 
-  getByIdentifier: publicProcedure
+  productByIdentifier: publicProcedure
     .input(z.object({ identifier: z.string().min(1) }))
     .query(async ({ ctx, input }) => {
       const product = await ctx.db.product.findUnique({
         where: { identifier: input.identifier },
       });
       return product ?? null;
+    }),
+
+  productsByIdentifiers: publicProcedure
+    .input(z.object({ identifiers: z.array(z.string().min(1)).min(1) }))
+    .query(async ({ ctx, input }) => {
+      const products = await ctx.db.product.findMany({
+        where: { identifier: { in: input.identifiers } },
+      });
+      return products;
     }),
 });

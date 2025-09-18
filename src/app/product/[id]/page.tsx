@@ -10,7 +10,7 @@ type Props = {
 };
 
 async function fetchProductById(id: string) {
-    return api.products.getByIdentifier({ identifier: id });
+    return api.products.productByIdentifier({ identifier: id });
 }
 
 export default async function ProductPage({ params }: Props) {
