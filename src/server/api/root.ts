@@ -1,4 +1,5 @@
 import { postRouter } from "~/server/api/routers/post";
+import { productsRouter } from "~/server/api/routers/products";
 import { authRouter } from "~/server/api/routers/auth";
 import { accountRouter } from "~/server/api/routers/account";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
@@ -10,6 +11,7 @@ import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
  */
 export const appRouter = createTRPCRouter({
   post: postRouter,
+  products: productsRouter,
   auth: authRouter,
   account: accountRouter,
 });
