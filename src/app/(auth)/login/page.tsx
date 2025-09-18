@@ -41,21 +41,23 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        try {
-          const response = await fetch('/api/auth/check-2fa', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: data.email, password: data.password }),
-          });
+        if (result.error === 'CredentialsSignin') {
+          try {
+            const response = await fetch('/api/auth/check-2fa', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: data.email, password: data.password }),
+            });
 
-          if (response.ok) {
-            const userData = await response.json();
-            if (userData.twoFactorRequired) {
-              router.push(`/auth/verify-2fa?userId=${userData.userId}&callbackUrl=${encodeURIComponent(from ?? '/account')}`);
-              return;
+            if (response.ok) {
+              const userData = await response.json();
+              if (userData.twoFactorRequired) {
+                router.push(`/auth/verify-2fa?userId=${userData.userId}&callbackUrl=${encodeURIComponent(from ?? '/account')}`);
+                return;
+              }
             }
+          } catch {
           }
-        } catch {
         }
 
         setError('Email ou mot de passe incorrect');

@@ -7,6 +7,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  USER
+  ADMIN
+  PREMIUM
+}
+
 model Post {
   id          Int      @id @default(autoincrement())
   name        String
@@ -52,7 +58,7 @@ model User {
   emailVerified       DateTime?
   image               String?
   passwordHash        String?
-  role                String               @default("USER")
+  role                Role                 @default(USER)
   twoFactorEnabled    Boolean              @default(false)
   twoFactorSecret     String?
   backupCodes         String[]
@@ -61,6 +67,7 @@ model User {
   sessions            Session[]
   passwordResetTokens PasswordResetToken[]
   cart                Cart?
+  auditLogs           AuditLog[]
 }
 
 model VerificationToken {
@@ -116,4 +123,18 @@ model CartItem {
   quantity  Int     @default(1)
 
   @@unique([cartId, productId])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  action    String
+  entity    String
+  entityId  String
+  adminId   String
+  admin     User     @relation(fields: [adminId], references: [id])
+  details   Json?
+  createdAt DateTime @default(now())
+
+  @@index([adminId])
+  @@index([createdAt])
 }

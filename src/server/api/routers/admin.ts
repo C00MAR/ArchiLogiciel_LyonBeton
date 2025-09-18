@@ -1,0 +1,265 @@
+import { z } from "zod";
+import { TRPCError } from "@trpc/server";
+
+import {
+  createTRPCRouter,
+  adminProcedure,
+} from "~/server/api/trpc";
+
+const promoteUserSchema = z.object({
+  userId: z.string().min(1, 'User ID requis'),
+  role: z.enum(['USER', 'ADMIN', 'PREMIUM']),
+});
+
+const createProductSchema = z.object({
+  title: z.string().min(1, 'Titre requis'),
+  subtitle: z.string().min(1, 'Sous-titre requis'),
+  description: z.string().min(1, 'Description requise'),
+  price: z.number().positive('Prix doit être positif'),
+  ref: z.string().min(1, 'Référence requise'),
+  identifier: z.string().min(1, 'Identifiant requis'),
+  imgNumber: z.number().positive('Nombre d\'images requis'),
+});
+
+const updateProductSchema = z.object({
+  id: z.number(),
+  title: z.string().min(1, 'Titre requis'),
+  subtitle: z.string().min(1, 'Sous-titre requis'),
+  description: z.string().min(1, 'Description requise'),
+  price: z.number().positive('Prix doit être positif'),
+  ref: z.string().min(1, 'Référence requise'),
+  identifier: z.string().min(1, 'Identifiant requis'),
+  imgNumber: z.number().positive('Nombre d\'images requis'),
+});
+
+async function logAuditAction(
+  ctx: any,
+  action: string,
+  entity: string,
+  entityId: string,
+  details?: any
+) {
+  await ctx.db.auditLog.create({
+    data: {
+      action,
+      entity,
+      entityId,
+      adminId: ctx.session.user.id,
+      details: details || {},
+    },
+  });
+}
+
+export const adminRouter = createTRPCRouter({
+  // Gestion utilisateurs
+  getAllUsers: adminProcedure
+    .query(async ({ ctx }) => {
+      return await ctx.db.user.findMany({
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          emailVerified: true,
+        },
+        orderBy: { email: 'asc' },
+      });
+    }),
+
+  promoteUser: adminProcedure
+    .input(promoteUserSchema)
+    .mutation(async ({ ctx, input }) => {
+      const user = await ctx.db.user.findUnique({
+        where: { id: input.userId },
+        select: { id: true, email: true, role: true },
+      });
+
+      if (!user) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Utilisateur non trouvé",
+        });
+      }
+
+      const updatedUser = await ctx.db.user.update({
+        where: { id: input.userId },
+        data: { role: input.role },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+        },
+      });
+
+      // Audit log
+      await logAuditAction(
+        ctx,
+        'ROLE_CHANGE',
+        'USER',
+        input.userId,
+        {
+          previousRole: user.role,
+          newRole: input.role,
+          userEmail: user.email,
+        }
+      );
+
+      return {
+        message: `Rôle mis à jour pour ${user.email}`,
+        user: updatedUser,
+      };
+    }),
+
+  // Gestion produits
+  getAllProducts: adminProcedure
+    .query(async ({ ctx }) => {
+      return await ctx.db.product.findMany({
+        orderBy: { createdAt: 'desc' },
+      });
+    }),
+
+  createProduct: adminProcedure
+    .input(createProductSchema)
+    .mutation(async ({ ctx, input }) => {
+      const existingProduct = await ctx.db.product.findFirst({
+        where: {
+          OR: [
+            { ref: input.ref },
+            { identifier: input.identifier },
+          ],
+        },
+      });
+
+      if (existingProduct) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "Un produit avec cette référence ou cet identifiant existe déjà",
+        });
+      }
+
+      const product = await ctx.db.product.create({
+        data: input,
+      });
+
+      // Audit log
+      await logAuditAction(
+        ctx,
+        'CREATE',
+        'PRODUCT',
+        product.id.toString(),
+        {
+          productTitle: product.title,
+          productRef: product.ref,
+        }
+      );
+
+      return {
+        message: 'Produit créé avec succès',
+        product,
+      };
+    }),
+
+  updateProduct: adminProcedure
+    .input(updateProductSchema)
+    .mutation(async ({ ctx, input }) => {
+      const existingProduct = await ctx.db.product.findUnique({
+        where: { id: input.id },
+      });
+
+      if (!existingProduct) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Produit non trouvé",
+        });
+      }
+
+      const product = await ctx.db.product.update({
+        where: { id: input.id },
+        data: {
+          title: input.title,
+          subtitle: input.subtitle,
+          description: input.description,
+          price: input.price,
+          ref: input.ref,
+          identifier: input.identifier,
+          imgNumber: input.imgNumber,
+        },
+      });
+
+      // Audit log
+      await logAuditAction(
+        ctx,
+        'UPDATE',
+        'PRODUCT',
+        product.id.toString(),
+        {
+          productTitle: product.title,
+          productRef: product.ref,
+          changes: input,
+        }
+      );
+
+      return {
+        message: 'Produit mis à jour avec succès',
+        product,
+      };
+    }),
+
+  deleteProduct: adminProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const product = await ctx.db.product.findUnique({
+        where: { id: input.id },
+      });
+
+      if (!product) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Produit non trouvé",
+        });
+      }
+
+      await ctx.db.product.delete({
+        where: { id: input.id },
+      });
+
+      // Audit log
+      await logAuditAction(
+        ctx,
+        'DELETE',
+        'PRODUCT',
+        product.id.toString(),
+        {
+          productTitle: product.title,
+          productRef: product.ref,
+        }
+      );
+
+      return {
+        message: 'Produit supprimé avec succès',
+      };
+    }),
+
+  // Audit logs
+  getAuditLogs: adminProcedure
+    .input(z.object({
+      limit: z.number().default(50),
+      offset: z.number().default(0),
+    }))
+    .query(async ({ ctx, input }) => {
+      return await ctx.db.auditLog.findMany({
+        include: {
+          admin: {
+            select: {
+              name: true,
+              email: true,
+            },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: input.limit,
+        skip: input.offset,
+      });
+    }),
+});

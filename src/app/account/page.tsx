@@ -26,7 +26,7 @@ type PasswordForm = z.infer<typeof passwordSchema>;
 
 export default function AccountPage() {
   const { data: session, update } = useSession();
-  const [activeTab, setActiveTab] = useState<'profile' | 'security'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'admin'>('profile');
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -151,6 +151,22 @@ export default function AccountPage() {
         >
           Sécurité
         </button>
+        {session?.user?.role === 'ADMIN' && (
+          <button
+            type="button"
+            onClick={() => setActiveTab('admin')}
+            style={{
+              padding: '1rem 2rem',
+              border: 'none',
+              background: 'none',
+              borderBottom: activeTab === 'admin' ? '2px solid #007bff' : '2px solid transparent',
+              cursor: 'pointer',
+              fontWeight: activeTab === 'admin' ? 'bold' : 'normal'
+            }}
+          >
+            Administration
+          </button>
+        )}
       </div>
 
       {activeTab === 'profile' && (
@@ -337,6 +353,48 @@ export default function AccountPage() {
                 {isLoading ? 'Changement...' : 'Changer le mot de passe'}
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'admin' && session?.user?.role === 'ADMIN' && (
+        <div>
+          <h2>Administration</h2>
+          <p>Accès au panel d administration</p>
+
+          <div>
+            <a
+              href="/admin"
+              style={{
+                display: 'inline-block',
+                backgroundColor: '#dc3545',
+                color: 'white',
+                padding: '1rem 2rem',
+                textDecoration: 'none',
+                borderRadius: '4px',
+                marginBottom: '1rem'
+              }}
+            >
+              Accéder au tableau de bord admin
+            </a>
+          </div>
+
+          <div>
+            <h3>Raccourcis</h3>
+            <ul>
+              <li>
+                <a href="/admin/users">Gestion des utilisateurs</a>
+              </li>
+              <li>
+                <a href="/admin/products">Gestion des produits</a>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3>Informations admin</h3>
+            <p>Vous êtes connecté avec les privilèges administrateur.</p>
+            <p>Rôle: {session.user.role}</p>
           </div>
         </div>
       )}
