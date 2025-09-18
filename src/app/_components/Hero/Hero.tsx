@@ -24,7 +24,7 @@ export default function Hero({
   videoSrc = '/assets/home_vid.webm',
   title = "LYON BETON",
   navigation = [
-    { label: "BOUTIQUE", href: "/shop" },
+    { label: "BOUTIQUE", href: "/products" },
     { label: "PANIER", href: "/cart" },
     { label: "COMPTE", href: "/login" }
   ],

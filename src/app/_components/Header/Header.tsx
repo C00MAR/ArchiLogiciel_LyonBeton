@@ -83,7 +83,7 @@ export default function Header() {
     return (
         <header className={bemCondition("header", ["visible", "hidden"], showHeader)}>
             <div className="header__container">
-                <Link href="/shop" className="header__shop">
+                <Link href="/products" className="header__shop">
                     <span>Boutique</span>
                 </Link>
                 <Link href="/" className="header__logo">

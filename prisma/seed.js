@@ -48,7 +48,7 @@ async function main() {
 	];
 
 	for (const product of products) {
-		await prisma.product.upsert({
+		const createdProduct = await prisma.product.upsert({
 			where: { ref: product.ref },
 			update: {
 				title: product.title,
@@ -66,6 +66,25 @@ async function main() {
 				imgNumber: product.imgNumber,
 				identifier: product.identifier,
 				ref: product.ref,
+			},
+		});
+
+		// prix defaut stripe
+		await prisma.price.upsert({
+			where: { stripePriceId: `price_${product.identifier}_default` },
+			update: {
+				amount: product.price,
+				isActive: true,
+				isDefault: true,
+			},
+			create: {
+				productId: createdProduct.id,
+				stripePriceId: `price_${product.identifier}_default`,
+				amount: product.price,
+				currency: "EUR",
+				type: "one_time",
+				isActive: true,
+				isDefault: true,
 			},
 		});
 	}
