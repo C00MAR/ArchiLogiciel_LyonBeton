@@ -88,6 +88,37 @@ export default function CartPage() {
         window.localStorage.setItem("guest_cart", JSON.stringify(next));
     };
 
+    const [isCheckingOut, setIsCheckingOut] = useState(false);
+
+    const handleCheckout = async (items: { productId: number; quantity: number }[]) => {
+        if (items.length === 0) return;
+
+        setIsCheckingOut(true);
+        try {
+            const response = await fetch('/api/stripe/checkout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ items }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.url) {
+                window.location.href = data.url;
+            } else {
+                console.error('Erreur checkout:', data.error);
+                alert('Erreur lors de la création de la session de paiement');
+            }
+        } catch (error) {
+            console.error('Erreur checkout:', error);
+            alert('Erreur lors de la création de la session de paiement');
+        } finally {
+            setIsCheckingOut(false);
+        }
+    };
+
     if (status === "loading") {
         return <div>Chargement...</div>;
     }
@@ -95,6 +126,7 @@ export default function CartPage() {
     if (isAuthenticated) {
         const items = cartQuery.data?.items ?? [];
         const total = items.reduce((sum, it) => sum + it.product.price * it.quantity, 0);
+        const displayTotal = (total / 100).toFixed(2);
         return (
             <div className="cart-page">
                 <h1>Votre panier</h1>
@@ -102,24 +134,41 @@ export default function CartPage() {
                     <p>Votre panier est vide.</p>
                 ) : (
                     <ul>
-                        {items.map((it) => (
-                            <li key={`${it.cartId}-${it.productId}`}>
-                                <div>
-                                    <strong>{it.product.title}</strong>
-                                </div>
-                                <div>Prix: {it.product.price} €</div>
-                                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                    <button onClick={() => updateItem.mutate({ identifier: it.product.identifier, quantity: it.quantity - 1 })}>-</button>
-                                    <span>Quantité: {it.quantity}</span>
-                                    <button onClick={() => updateItem.mutate({ identifier: it.product.identifier, quantity: it.quantity + 1 })}>+</button>
-                                    <button onClick={() => removeItem.mutate({ identifier: it.product.identifier })}>Supprimer</button>
-                                </div>
-                            </li>
-                        ))}
+                        {items.map((it) => {
+                            const displayPrice = (it.product.price / 100).toFixed(2);
+                            return (
+                                <li key={`${it.cartId}-${it.productId}`}>
+                                    <div>
+                                        <strong>{it.product.title}</strong>
+                                    </div>
+                                    <div>Prix: {displayPrice} €</div>
+                                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                        <button onClick={() => updateItem.mutate({ identifier: it.product.identifier, quantity: it.quantity - 1 })}>-</button>
+                                        <span>Quantité: {it.quantity}</span>
+                                        <button onClick={() => updateItem.mutate({ identifier: it.product.identifier, quantity: it.quantity + 1 })}>+</button>
+                                        <button onClick={() => removeItem.mutate({ identifier: it.product.identifier })}>Supprimer</button>
+                                    </div>
+                                </li>
+                            );
+                        })}
                     </ul>
                 )}
-                <div>Total: {total} €</div>
-                <Link href="/checkout">Commander</Link>
+                <div>Total: {displayTotal} €</div>
+                <button
+                    onClick={() => handleCheckout(items.map(it => ({ productId: it.productId, quantity: it.quantity })))}
+                    disabled={isCheckingOut || items.length === 0}
+                    style={{
+                        padding: '12px 24px',
+                        backgroundColor: '#007cba',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: isCheckingOut ? 'not-allowed' : 'pointer',
+                        opacity: isCheckingOut ? 0.6 : 1
+                    }}
+                >
+                    {isCheckingOut ? 'Redirection...' : 'Payer avec Stripe'}
+                </button>
             </div>
         );
     }
@@ -127,6 +176,7 @@ export default function CartPage() {
     const guestProducts = guestProductsQuery.data ?? [];
     const guestItems = guestProducts.map((p) => ({ product: p, quantity: guestCart[p.identifier] ?? 0 }));
     const guestTotal = guestItems.reduce((sum, it) => sum + it.product.price * it.quantity, 0);
+    const displayGuestTotal = (guestTotal / 100).toFixed(2);
 
     return (
         <div className="cart-page">
@@ -135,24 +185,55 @@ export default function CartPage() {
                 <p>Votre panier est vide.</p>
             ) : (
                 <ul>
-                    {guestItems.map((it) => (
-                        <li key={it.product.identifier}>
-                            <div>
-                                <strong>{it.product.title}</strong>
-                            </div>
-                            <div>Prix: {it.product.price} €</div>
-                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                <button onClick={() => setGuestQty(it.product.identifier, (it.quantity - 1))}>-</button>
-                                <span>Quantité: {it.quantity}</span>
-                                <button onClick={() => setGuestQty(it.product.identifier, (it.quantity + 1))}>+</button>
-                                <button onClick={() => setGuestQty(it.product.identifier, 0)}>Supprimer</button>
-                            </div>
-                        </li>
-                    ))}
+                    {guestItems.map((it) => {
+                        const displayPrice = (it.product.price / 100).toFixed(2);
+                        return (
+                            <li key={it.product.identifier}>
+                                <div>
+                                    <strong>{it.product.title}</strong>
+                                </div>
+                                <div>Prix: {displayPrice} €</div>
+                                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                    <button onClick={() => setGuestQty(it.product.identifier, (it.quantity - 1))}>-</button>
+                                    <span>Quantité: {it.quantity}</span>
+                                    <button onClick={() => setGuestQty(it.product.identifier, (it.quantity + 1))}>+</button>
+                                    <button onClick={() => setGuestQty(it.product.identifier, 0)}>Supprimer</button>
+                                </div>
+                            </li>
+                        );
+                    })}
                 </ul>
             )}
-            <div>Total: {guestTotal} €</div>
-            <Link href="/login">Se connecter</Link>
+            <div>Total: {displayGuestTotal} €</div>
+            <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+                <Link href="/login" style={{
+                    padding: '12px 24px',
+                    backgroundColor: '#28a745',
+                    color: 'white',
+                    textDecoration: 'none',
+                    borderRadius: '4px'
+                }}>
+                    Se connecter pour payer
+                </Link>
+                <button
+                    onClick={() => {
+                        const items = guestItems.map(it => ({ productId: it.product.id, quantity: it.quantity }));
+                        handleCheckout(items);
+                    }}
+                    disabled={isCheckingOut || guestItems.length === 0}
+                    style={{
+                        padding: '12px 24px',
+                        backgroundColor: '#007cba',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: isCheckingOut ? 'not-allowed' : 'pointer',
+                        opacity: isCheckingOut ? 0.6 : 1
+                    }}
+                >
+                    {isCheckingOut ? 'Redirection...' : 'Payer sans compte'}
+                </button>
+            </div>
         </div>
     );
 } 

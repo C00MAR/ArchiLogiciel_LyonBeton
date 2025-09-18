@@ -60,6 +60,53 @@ GITHUB_CLIENT_ID="your_github_client_id_here"
 GITHUB_CLIENT_SECRET="your_github_client_secret_here"
 ```
 
+## Stripe Configuration
+
+### Stripe Setup for Payments
+1. Go to [Stripe Dashboard](https://dashboard.stripe.com/)
+2. Create a new account or log into your existing one
+3. Navigate to "Developers" → "API keys"
+4. Copy your keys:
+   - **Publishable key** (starts with `pk_test_` or `pk_live_`)
+   - **Secret key** (starts with `sk_test_` or `sk_live_`)
+
+### Test Mode vs Live Mode
+- **Test Mode**: Use test keys for development (no real payments)
+- **Live Mode**: Use live keys for production (real payments)
+
+### Environment Variables for Stripe
+Add these to your `.env` file:
+
+```bash
+# Stripe Configuration
+STRIPE_SECRET_KEY="sk_test_your_stripe_secret_key_here"
+STRIPE_PUBLISHABLE_KEY="pk_test_your_stripe_publishable_key_here"
+
+# For production, use live keys:
+# STRIPE_SECRET_KEY="sk_live_your_live_secret_key_here"
+# STRIPE_PUBLISHABLE_KEY="pk_live_your_live_publishable_key_here"
+```
+
+### Stripe Webhooks (Optional)
+1. In Stripe Dashboard, go to "Developers" → "Webhooks"
+2. Add endpoint: `https://yourdomain.com/api/stripe/webhook`
+3. Select events: `checkout.session.completed`, `payment_intent.succeeded`
+4. Copy the webhook signing secret to your `.env`:
+
+```bash
+STRIPE_WEBHOOK_SECRET="whsec_your_webhook_secret_here"
+```
+
+### Product Prices Setup
+The application supports both:
+- **Legacy pricing**: Direct price field in Product model
+- **Stripe Prices**: Separate Price model with `stripePriceId` for advanced features
+
+To use Stripe Prices:
+1. Create products in Stripe Dashboard
+2. Create prices for each product
+3. Update your database with the corresponding `stripePriceId` values
+
 ## Development Setup
 
 1. Start MailDev : docker run -p 1080:1080 -p 1025:1025 maildev/maildev

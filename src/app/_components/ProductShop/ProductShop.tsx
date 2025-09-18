@@ -14,6 +14,7 @@ export default function ProductShop({ product }: Props) {
     const { title, subtitle, price, description, identifier, prices } = product;
 
     const currentPrice = prices?.find(p => p.isDefault && p.isActive)?.amount ?? price;
+    const displayPrice = (currentPrice / 100).toFixed(2);
     const { data: session } = useSession();
     const utils = api.useUtils();
     const addToCartMutation = api.cart.addToCart.useMutation({
@@ -46,7 +47,7 @@ export default function ProductShop({ product }: Props) {
                 <h2>{subtitle}</h2>
             </div>
             <div className={bemCondition("product-shop__grid", "bottom-left")}>
-                <span>Eur {currentPrice}</span>
+                <span>Eur {displayPrice}</span>
                 <button
                     type="button"
                     className="product-shop__button"
