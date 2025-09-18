@@ -4,5 +4,6 @@ export type ProductType = {
     price: number;
     ref: string;
     id: string;
-    imgNumber?: number;
+    description: string;
+    imgNumber: number;
 }

@@ -10,7 +10,7 @@ const bemCondition = (
     if (Array.isArray(modifiers)) {
         modifierToApply = condition ? modifiers[0] : modifiers[1];
     } else {
-        if (condition) modifierToApply = modifiers;
+        if (condition || condition === undefined) modifierToApply = modifiers;
     }
 
     return `${base} ${base}--${modifierToApply}`
