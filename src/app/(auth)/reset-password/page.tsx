@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { api } from '~/trpc/react';
 
 const passwordResetSchema = z.object({
   password: z
@@ -44,6 +45,21 @@ export default function ResetPasswordPage() {
     }
   }, [token]);
 
+  const confirmPasswordResetMutation = api.auth.confirmPasswordReset.useMutation({
+    onSuccess: () => {
+      setSuccess(true);
+      setTimeout(() => {
+        router.push('/login');
+      }, 3000);
+    },
+    onError: (error) => {
+      setError(error.message);
+    },
+    onSettled: () => {
+      setIsLoading(false);
+    },
+  });
+
   const onSubmit = async (data: PasswordResetFormData) => {
     if (!token) {
       setError('Token manquant');
@@ -53,33 +69,10 @@ export default function ResetPasswordPage() {
     setIsLoading(true);
     setError(null);
 
-    try {
-      const response = await fetch('/api/auth/password/reset/confirm', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          token,
-          password: data.password,
-        }),
-      });
-
-      const result = await response.json() as { error?: string };
-
-      if (response.ok) {
-        setSuccess(true);
-        setTimeout(() => {
-          router.push('/login');
-        }, 3000);
-      } else {
-        setError(result.error ?? 'Une erreur est survenue');
-      }
-    } catch {
-      setError('Erreur de connexion au serveur');
-    } finally {
-      setIsLoading(false);
-    }
+    confirmPasswordResetMutation.mutate({
+      token,
+      password: data.password,
+    });
   };
 
   if (!token) {

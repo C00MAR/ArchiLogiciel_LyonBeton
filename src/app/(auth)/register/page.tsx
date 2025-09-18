@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { api } from '~/trpc/react';
 
 const registerSchema = z.object({
   email: z.string().email('Email invalide'),
@@ -27,30 +28,22 @@ export default function RegisterPage() {
     resolver: zodResolver(registerSchema),
   });
 
+  const registerMutation = api.auth.register.useMutation({
+    onSuccess: () => {
+      router.push('/auth/verify-email');
+    },
+    onError: (error) => {
+      setServerError(error.message);
+    },
+    onSettled: () => {
+      setIsLoading(false);
+    },
+  });
+
   const onSubmit = async (data: RegisterFormData) => {
     setIsLoading(true);
     setServerError(null);
-
-    try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (response.ok) {
-        router.push('/auth/verify-email');
-      } else {
-        const errorData = await response.json() as { error?: string };
-        setServerError(errorData.error ?? 'Une erreur est survenue');
-      }
-    } catch {
-      setServerError('Erreur de connexion au serveur');
-    } finally {
-      setIsLoading(false);
-    }
+    registerMutation.mutate(data);
   };
 
   return (

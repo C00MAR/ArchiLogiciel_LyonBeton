@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { useSession } from 'next-auth/react';
+import { useSession, getSession } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { api } from '~/trpc/react';
 
 const profileSchema = z.object({
   name: z.string().min(1, 'Le nom est requis').max(50, 'Le nom ne peut pas dépasser 50 caractères'),
@@ -41,86 +42,62 @@ export default function AccountPage() {
     resolver: zodResolver(passwordSchema),
   });
 
+  const updateProfileMutation = api.account.updateProfile.useMutation({
+    onSuccess: async () => {
+      await update();
+      setMessage({ type: 'success', text: 'Profil mis à jour avec succès' });
+    },
+    onError: (error) => {
+      setMessage({ type: 'error', text: error.message });
+    },
+    onSettled: () => {
+      setIsLoading(false);
+    },
+  });
+
   const onProfileSubmit = async (data: ProfileForm) => {
     setIsLoading(true);
     setMessage(null);
-
-    try {
-      const response = await fetch('/api/account/profile', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const error = await response.json() as { message?: string };
-        throw new Error(error.message ?? 'Erreur lors de la mise à jour');
-      }
-
-      await update();
-      setMessage({ type: 'success', text: 'Profil mis à jour avec succès' });
-    } catch (error) {
-      setMessage({
-        type: 'error',
-        text: error instanceof Error ? error.message : 'Erreur lors de la mise à jour'
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    updateProfileMutation.mutate(data);
   };
+
+  const changePasswordMutation = api.account.changePassword.useMutation({
+    onSuccess: () => {
+      passwordForm.reset();
+      setMessage({ type: 'success', text: 'Mot de passe changé avec succès' });
+    },
+    onError: (error) => {
+      setMessage({ type: 'error', text: error.message });
+    },
+    onSettled: () => {
+      setIsLoading(false);
+    },
+  });
 
   const onPasswordSubmit = async (data: PasswordForm) => {
     setIsLoading(true);
     setMessage(null);
-
-    try {
-      const response = await fetch('/api/account/password', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const error = await response.json() as { message?: string };
-        throw new Error(error.message ?? 'Erreur lors du changement de mot de passe');
-      }
-
-      passwordForm.reset();
-      setMessage({ type: 'success', text: 'Mot de passe changé avec succès' });
-    } catch (error) {
-      setMessage({
-        type: 'error',
-        text: error instanceof Error ? error.message : 'Erreur lors du changement de mot de passe'
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    changePasswordMutation.mutate(data);
   };
+
+  const requestEmailVerificationMutation = api.auth.requestEmailVerification.useMutation({
+    onSuccess: () => {
+      setMessage({ type: 'success', text: 'Email de vérification envoyé' });
+    },
+    onError: (error) => {
+      setMessage({ type: 'error', text: error.message });
+    },
+    onSettled: () => {
+      setIsLoading(false);
+    },
+  });
 
   const resendVerificationEmail = async () => {
     setIsLoading(true);
     setMessage(null);
 
-    try {
-      const response = await fetch('/api/auth/email/verification/request', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: session?.user?.email }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json() as { message?: string };
-        throw new Error(error.message ?? 'Erreur lors de l\'envoi de l\'email');
-      }
-
-      setMessage({ type: 'success', text: 'Email de vérification envoyé' });
-    } catch (error) {
-      setMessage({
-        type: 'error',
-        text: error instanceof Error ? error.message : 'Erreur lors de l\'envoi de l\'email'
-      });
-    } finally {
-      setIsLoading(false);
+    if (session?.user?.email) {
+      requestEmailVerificationMutation.mutate({ email: session.user.email });
     }
   };
 

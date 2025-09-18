@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { api } from '~/trpc/react';
 
 const forgotPasswordSchema = z.object({
   email: z.string().email('Email invalide'),
@@ -24,32 +25,23 @@ export default function ForgotPasswordPage() {
     resolver: zodResolver(forgotPasswordSchema),
   });
 
+  const passwordResetMutation = api.auth.requestPasswordReset.useMutation({
+    onSuccess: (data) => {
+      setMessage(data.message);
+    },
+    onError: (error) => {
+      setError(error.message);
+    },
+    onSettled: () => {
+      setIsLoading(false);
+    },
+  });
+
   const onSubmit = async (data: ForgotPasswordFormData) => {
     setIsLoading(true);
     setError(null);
     setMessage(null);
-
-    try {
-      const response = await fetch('/api/auth/password/reset/request', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      const result = await response.json() as { message?: string; error?: string };
-
-      if (response.ok) {
-        setMessage(result.message ?? null);
-      } else {
-        setError(result.error ?? 'Une erreur est survenue');
-      }
-    } catch {
-      setError('Erreur de connexion au serveur');
-    } finally {
-      setIsLoading(false);
-    }
+    passwordResetMutation.mutate(data);
   };
 
   return (
