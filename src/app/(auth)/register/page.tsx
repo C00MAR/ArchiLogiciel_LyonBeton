@@ -43,10 +43,10 @@ export default function RegisterPage() {
       if (response.ok) {
         router.push('/auth/verify-email');
       } else {
-        const errorData = await response.json();
-        setServerError(errorData.error || 'Une erreur est survenue');
+        const errorData = await response.json() as { error?: string };
+        setServerError(errorData.error ?? 'Une erreur est survenue');
       }
-    } catch (error) {
+    } catch {
       setServerError('Erreur de connexion au serveur');
     } finally {
       setIsLoading(false);

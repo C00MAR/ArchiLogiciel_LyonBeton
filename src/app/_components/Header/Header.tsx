@@ -2,6 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import cart from "~/../public/assets/cart.svg";
 import logo from "~/../public/assets/logo.svg";
@@ -11,8 +12,10 @@ import bemCondition from "../../helpers/bemHelper";
 import "./Header.css";
 
 export default function Header() {
-    const { data: session, status } = useSession();
-    const [showHeader, setShowHeader] = useState(false);
+    const { data: session } = useSession();
+    const pathname = usePathname();
+    const isHomePage = pathname === "/";
+    const [showHeader, setShowHeader] = useState(!isHomePage);
     const [showInputSearch, setShowInputSearch] = useState(false);
     const lastScrollY = useRef(0);
     const scrollTimeout = useRef<NodeJS.Timeout | null>(null);
@@ -20,6 +23,11 @@ export default function Header() {
     const searchIconRef = useRef<HTMLSpanElement>(null);
 
     useEffect(() => {
+        if (!isHomePage) {
+            setShowHeader(true);
+            return;
+        }
+
         const handleScroll = () => {
             const currentScrollY = window.scrollY;
             if (currentScrollY < 150 || currentScrollY > lastScrollY.current) {
@@ -42,7 +50,7 @@ export default function Header() {
             window.removeEventListener("scroll", handleScroll);
             if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
         };
-    }, []);
+    }, [isHomePage]);
 
     const toggleSearch = () => {
         setShowInputSearch(prev => {
@@ -79,7 +87,7 @@ export default function Header() {
                     <span>Boutique</span>
                 </Link>
                 <Link href="/" className="header__logo">
-                    <img src={logo.src} alt="Lyon Beton" />
+                    <img src={(logo as { src: string }).src} alt="Lyon Beton" />
                 </Link>
                 <div className="header__actions">
                     {session ? (
@@ -97,7 +105,7 @@ export default function Header() {
                                 <span>Se Connecter</span>
                             </Link>
                             <Link href="/register" className="header__account">
-                                <span>S'inscrire</span>
+                                <span>S inscrire</span>
                             </Link>
                         </>
                     )}
@@ -113,10 +121,10 @@ export default function Header() {
                             className={bemCondition("header__actions-input", "visible", showInputSearch)}
                             placeholder="Rechercher..."
                         />
-                        <img src={search.src} alt="Search" />
+                        <img src={(search as { src: string }).src} alt="Search" />
                     </span>
                     <Link href="/cart" className="header__actions-icon cart">
-                        <img src={cart.src} alt="Cart" />
+                        <img src={(cart as { src: string }).src} alt="Cart" />
                     </Link>
                 </div>
             </div>

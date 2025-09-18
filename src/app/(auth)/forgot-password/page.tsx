@@ -38,14 +38,14 @@ export default function ForgotPasswordPage() {
         body: JSON.stringify(data),
       });
 
-      const result = await response.json();
+      const result = await response.json() as { message?: string; error?: string };
 
       if (response.ok) {
-        setMessage(result.message);
+        setMessage(result.message ?? null);
       } else {
-        setError(result.error || 'Une erreur est survenue');
+        setError(result.error ?? 'Une erreur est survenue');
       }
-    } catch (error) {
+    } catch {
       setError('Erreur de connexion au serveur');
     } finally {
       setIsLoading(false);

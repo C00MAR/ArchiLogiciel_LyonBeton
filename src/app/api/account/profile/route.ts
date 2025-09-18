@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { auth } from '~/lib/auth';
 import { prisma } from '~/lib/prisma';
@@ -19,14 +19,14 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
+    const body = await request.json() as unknown;
     const validatedData = updateProfileSchema.parse(body);
 
     const updatedUser = await prisma.user.update({
       where: { id: session.user.id },
       data: {
         name: validatedData.name,
-        image: validatedData.avatarUrl || null,
+        image: validatedData.avatarUrl ?? null,
       },
       select: {
         id: true,

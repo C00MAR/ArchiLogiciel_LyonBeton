@@ -43,9 +43,9 @@ export default function LoginPage() {
       if (result?.error) {
         setError('Email ou mot de passe incorrect');
       } else if (result?.ok) {
-        router.push(from || '/account');
+        router.push(from ?? '/account');
       }
-    } catch (error) {
+    } catch {
       setError('Erreur de connexion');
     } finally {
       setIsLoading(false);
@@ -94,7 +94,7 @@ export default function LoginPage() {
         <div>
           <span>
             Pas encore de compte ?{' '}
-            <a href="/register">S'inscrire</a>
+            <a href="/register">S inscrire</a>
           </span>
         </div>
       </form>

@@ -32,8 +32,8 @@ export default function AccountPage() {
   const profileForm = useForm<ProfileForm>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      name: session?.user?.name || '',
-      avatarUrl: session?.user?.image || '',
+      name: session?.user?.name ?? '',
+      avatarUrl: session?.user?.image ?? '',
     },
   });
 
@@ -53,8 +53,8 @@ export default function AccountPage() {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Erreur lors de la mise à jour');
+        const error = await response.json() as { message?: string };
+        throw new Error(error.message ?? 'Erreur lors de la mise à jour');
       }
 
       await update();
@@ -81,8 +81,8 @@ export default function AccountPage() {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Erreur lors du changement de mot de passe');
+        const error = await response.json() as { message?: string };
+        throw new Error(error.message ?? 'Erreur lors du changement de mot de passe');
       }
 
       passwordForm.reset();
@@ -109,8 +109,8 @@ export default function AccountPage() {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Erreur lors de l\'envoi de l\'email');
+        const error = await response.json() as { message?: string };
+        throw new Error(error.message ?? 'Erreur lors de l\'envoi de l\'email');
       }
 
       setMessage({ type: 'success', text: 'Email de vérification envoyé' });
@@ -202,7 +202,7 @@ export default function AccountPage() {
             </div>
 
             <div style={{ marginBottom: '1rem' }}>
-              <label htmlFor="avatarUrl">URL de l&apos;avatar (optionnel)</label>
+              <label htmlFor="avatarUrl">URL de l avatar (optionnel)</label>
               <input
                 id="avatarUrl"
                 type="url"
@@ -246,7 +246,7 @@ export default function AccountPage() {
           <h2>Sécurité</h2>
 
           <div style={{ marginBottom: '2rem' }}>
-            <h3>Vérification de l&apos;email</h3>
+            <h3>Vérification de l email</h3>
             <p>Email: {session.user?.email}</p>
             <p>Statut: {session.user?.emailVerified ? 'Vérifié' : 'Non vérifié'}</p>
             {!session.user?.emailVerified && (
