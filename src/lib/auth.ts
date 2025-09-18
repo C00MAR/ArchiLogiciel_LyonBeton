@@ -1,12 +1,42 @@
 import NextAuth, { type NextAuthConfig } from 'next-auth';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import Credentials from 'next-auth/providers/credentials';
+import Google from 'next-auth/providers/google';
+import GitHub from 'next-auth/providers/github';
 import { compare } from 'bcryptjs';
 import { prisma } from './prisma';
 
 export const authOptions: NextAuthConfig = {
   adapter: PrismaAdapter(prisma),
+  events: {
+    async createUser({ user }) {
+      if (user.email && !user.emailVerified) {
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { emailVerified: new Date() },
+        });
+      }
+    },
+    async linkAccount({ user, account }) {
+      if (account.provider !== 'credentials' && user.email) {
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { emailVerified: new Date() },
+        });
+      }
+    },
+  },
   providers: [
+    Google({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      allowDangerousEmailAccountLinking: true,
+    }),
+    GitHub({
+      clientId: process.env.GITHUB_CLIENT_ID!,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+      allowDangerousEmailAccountLinking: true,
+    }),
     Credentials({
       name: 'credentials',
       credentials: {
@@ -32,7 +62,7 @@ export const authOptions: NextAuthConfig = {
 
         const isPasswordValid = await compare(credentials.password, user.passwordHash);
 
-        if (!(isPasswordValid)) {
+        if (!isPasswordValid) {
           return null;
         }
 
@@ -48,11 +78,11 @@ export const authOptions: NextAuthConfig = {
   ],
   session: {
     strategy: 'jwt',
-    maxAge: 24 * 60 * 60, // 24 heures
-    updateAge: 60 * 60, // Rotation toutes les heures
+    maxAge: 24 * 60 * 60,
+    updateAge: 60 * 60,
   },
   jwt: {
-    maxAge: 24 * 60 * 60, // 24 heures
+    maxAge: 24 * 60 * 60,
   },
   cookies: {
     sessionToken: {
@@ -84,15 +114,20 @@ export const authOptions: NextAuthConfig = {
     }
   },
   callbacks: {
-    async jwt({ token, user, account }) {
-      // Lors de la première connexion, ajouter les données utilisateur au token
+    async signIn({ account }) {
+      if (account?.provider !== 'credentials') {
+        return true;
+      }
+
+      return true;
+    },
+    async jwt({ token, user }) {
       if (user) {
         token.role = user.role;
         token.emailVerified = user.emailVerified;
       }
 
-      // Mise à jour périodique des données utilisateur
-      if (account?.provider === 'credentials' && token.sub) {
+      if (token.sub) {
         const dbUser = await prisma.user.findUnique({
           where: { id: token.sub },
           select: { role: true, emailVerified: true }

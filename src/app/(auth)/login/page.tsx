@@ -52,6 +52,18 @@ export default function LoginPage() {
     }
   };
 
+  const handleOAuthSignIn = async (provider: 'google' | 'github') => {
+    setIsLoading(true);
+    try {
+      await signIn(provider, {
+        callbackUrl: from ?? '/account',
+      });
+    } catch {
+      setError('Erreur de connexion');
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div>
       <h2>Se connecter</h2>
@@ -86,18 +98,40 @@ export default function LoginPage() {
         <button type="submit" disabled={isLoading}>
           {isLoading ? 'Connexion en cours...' : 'Se connecter'}
         </button>
-
-        <div>
-          <a href="/forgot-password">Mot de passe oublié ?</a>
-        </div>
-
-        <div>
-          <span>
-            Pas encore de compte ?{' '}
-            <a href="/register">S inscrire</a>
-          </span>
-        </div>
       </form>
+
+      <div>
+        <span>ou</span>
+      </div>
+
+      <div>
+        <button
+          type="button"
+          onClick={() => handleOAuthSignIn('google')}
+          disabled={isLoading}
+        >
+          Continuer avec Google
+        </button>
+
+        <button
+          type="button"
+          onClick={() => handleOAuthSignIn('github')}
+          disabled={isLoading}
+        >
+          Continuer avec GitHub
+        </button>
+      </div>
+
+      <div>
+        <a href="/forgot-password">Mot de passe oublié ?</a>
+      </div>
+
+      <div>
+        <span>
+          Pas encore de compte ?{' '}
+          <a href="/register">S'inscrire</a>
+        </span>
+      </div>
     </div>
   );
 }
