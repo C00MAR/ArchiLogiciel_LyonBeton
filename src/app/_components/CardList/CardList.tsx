@@ -19,7 +19,7 @@ export default function CardList(props: Props) {
             </div>
             <ul className="card-list__items">
                 {props.productList.map((product) => (
-                    <li key={product.id} className="card-list__item">
+                    <li key={product.identifier} className="card-list__item">
                         <CardElement product={product} />
                     </li>
                 ))}

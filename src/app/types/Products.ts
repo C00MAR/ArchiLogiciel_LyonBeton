@@ -3,7 +3,7 @@ export type ProductType = {
     subtitle: string;
     price: number;
     ref: string;
-    id: string;
+    identifier: string;
     description: string;
     imgNumber: number;
 }

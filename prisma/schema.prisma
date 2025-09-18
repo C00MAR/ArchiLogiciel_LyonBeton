@@ -46,16 +46,16 @@ model Session {
 }
 
 model User {
-  id                 String              @id @default(cuid())
-  name               String
-  email              String              @unique
-  emailVerified      DateTime?
-  image              String?
-  passwordHash       String?
-  role               String              @default("USER")
-  accounts           Account[]
-  posts              Post[]
-  sessions           Session[]
+  id                  String               @id @default(cuid())
+  name                String
+  email               String               @unique
+  emailVerified       DateTime?
+  image               String?
+  passwordHash        String?
+  role                String               @default("USER")
+  accounts            Account[]
+  posts               Post[]
+  sessions            Session[]
   passwordResetTokens PasswordResetToken[]
 }
 
@@ -76,4 +76,19 @@ model PasswordResetToken {
   user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  title       String
+  subtitle    String
+  description String
+  price       Int
+  imgNumber   Int
+  identifier  String   @unique
+  ref         String   @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([title])
 }

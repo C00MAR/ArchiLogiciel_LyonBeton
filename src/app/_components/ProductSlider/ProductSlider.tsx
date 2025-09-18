@@ -11,13 +11,13 @@ type Props = {
 export default function ProductSlider({ product }: Props) {
     const carrouselContainerRef = useRef<HTMLDivElement>(null);
 
-    const { title, id, imgNumber } = product;
+    const { title, identifier, imgNumber } = product;
 
     const images = [...Array(imgNumber || 1)].map((_, index) => (
         <div
-            key={`${id}_${index}`}
+            key={`${identifier}_${index}`}
             className="carrousel__image"
-            style={{ backgroundImage: `url('/product/${id}_${index}.webp')` }}
+            style={{ backgroundImage: `url('/product/${identifier}_${index}.webp')` }}
         />
     ));
 
