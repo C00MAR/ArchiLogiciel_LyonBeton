@@ -14,7 +14,7 @@ export default function LogoutButton({
   disabled = false
 }: LogoutButtonProps) {
   const handleLogout = () => {
-    signOut({ callbackUrl: '/' });
+    void signOut({ callbackUrl: '/' });
   };
 
   return (

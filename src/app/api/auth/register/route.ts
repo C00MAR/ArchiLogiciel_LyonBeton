@@ -13,7 +13,7 @@ const registerSchema = z.object({
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
+    const body = await request.json() as unknown;
 
     const validatedData = registerSchema.parse(body);
     const { email, password, name } = validatedData;
@@ -31,7 +31,7 @@ export async function POST(request: Request) {
 
     const passwordHash = await hash(password, 12);
 
-    const user = await prisma.user.create({
+    await prisma.user.create({
       data: {
         email,
         name,
@@ -51,7 +51,7 @@ export async function POST(request: Request) {
     });
 
     try {
-      const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+      const baseUrl = process.env.NEXTAUTH_URL ?? 'http://localhost:3000';
       const verificationUrl = `${baseUrl}/api/auth/email/verification/verify?token=${token}`;
 
       const { text, html } = generateVerificationEmailTemplate(verificationUrl, name);

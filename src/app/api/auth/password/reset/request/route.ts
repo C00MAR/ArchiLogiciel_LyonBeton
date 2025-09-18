@@ -10,7 +10,7 @@ const requestSchema = z.object({
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
+    const body = await request.json() as unknown;
     const { email } = requestSchema.parse(body);
 
     // Vérifier que l'utilisateur existe
@@ -53,7 +53,7 @@ export async function POST(request: Request) {
     });
 
     // Envoyer l'email
-    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NEXTAUTH_URL ?? 'http://localhost:3000';
     const resetUrl = `${baseUrl}/reset-password?token=${token}`;
 
     const { text, html } = generatePasswordResetEmailTemplate(resetUrl, user.name);

@@ -1,4 +1,4 @@
-import NextAuth, { NextAuthConfig } from 'next-auth';
+import NextAuth, { type NextAuthConfig } from 'next-auth';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import Credentials from 'next-auth/providers/credentials';
 import { compare } from 'bcryptjs';
@@ -22,7 +22,7 @@ export const authOptions: NextAuthConfig = {
           where: { email: credentials.email },
         });
 
-        if (!user || !user.passwordHash) {
+        if (!user?.passwordHash) {
           return null;
         }
 
@@ -32,7 +32,7 @@ export const authOptions: NextAuthConfig = {
 
         const isPasswordValid = await compare(credentials.password, user.passwordHash);
 
-        if (!isPasswordValid) {
+        if (!(isPasswordValid)) {
           return null;
         }
 
@@ -109,8 +109,8 @@ export const authOptions: NextAuthConfig = {
     async session({ session, token }) {
       if (session.user && token.sub) {
         session.user.id = token.sub;
-        session.user.role = token.role as string;
-        session.user.emailVerified = token.emailVerified as Date | null;
+        session.user.role = token.role;
+        session.user.emailVerified = token.emailVerified;
       }
       return session;
     },

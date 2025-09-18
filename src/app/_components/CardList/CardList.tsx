@@ -3,7 +3,6 @@
 import React from "react";
 import type { ProductType } from "../../types/Products";
 import "./CardList.css";
-import Link from "next/link";
 import CardElement from "../CardElement/CardElement";
 
 type Props = {

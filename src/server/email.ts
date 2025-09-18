@@ -26,7 +26,7 @@ export async function sendVerificationRequest({
 
   const failed = result.rejected.filter(Boolean);
   if (failed.length) {
-    throw new Error(`Email(s) (${failed.join(", ")}) could not be sent`);
+    throw new Error(`Email(s) (${failed.map(String).join(", ")}) could not be sent`);
   }
 }
 

@@ -10,16 +10,16 @@ export interface EmailOptions {
 export async function sendEmail({ to, subject, text, html }: EmailOptions) {
   try {
     console.log('📧 Configuration email:', {
-      host: process.env.EMAIL_SERVER_HOST || 'localhost',
-      port: process.env.EMAIL_SERVER_PORT || '1025',
-      from: process.env.EMAIL_FROM || 'noreply@localhost',
+      host: process.env.EMAIL_SERVER_HOST ?? 'localhost',
+      port: process.env.EMAIL_SERVER_PORT ?? '1025',
+      from: process.env.EMAIL_FROM ?? 'noreply@localhost',
       to,
       subject
     });
 
     const transporter = nodemailer.createTransport({
-      host: process.env.EMAIL_SERVER_HOST || 'localhost',
-      port: parseInt(process.env.EMAIL_SERVER_PORT || '1025'),
+      host: process.env.EMAIL_SERVER_HOST ?? 'localhost',
+      port: parseInt(process.env.EMAIL_SERVER_PORT ?? '1025'),
       secure: false,
       ignoreTLS: true,
       auth: process.env.EMAIL_SERVER_USER ? {
@@ -33,7 +33,7 @@ export async function sendEmail({ to, subject, text, html }: EmailOptions) {
     console.log('✅ Connexion SMTP réussie');
 
     const result = await transporter.sendMail({
-      from: process.env.EMAIL_FROM || 'noreply@localhost',
+      from: process.env.EMAIL_FROM ?? 'noreply@localhost',
       to,
       subject,
       text,
@@ -46,11 +46,7 @@ export async function sendEmail({ to, subject, text, html }: EmailOptions) {
     });
 
   } catch (error) {
-    console.error('❌ Erreur envoi email:', {
-      error: error.message,
-      code: error.code,
-      command: error.command
-    });
+    console.error('❌ Erreur envoi email:', error);
     throw new Error('Failed to send email');
   }
 }
