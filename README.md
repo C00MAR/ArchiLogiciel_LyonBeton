@@ -115,3 +115,6 @@ To use Stripe Prices:
 http://localhost:3000
 4. View emails at :
 http://localhost:1080
+
+stripe listen --forward-to localhost:3000
+npm test
