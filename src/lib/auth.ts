@@ -42,14 +42,53 @@ export const authOptions: NextAuthConfig = {
       credentials: {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
+        userId: { label: 'User ID', type: 'text' },
+        twoFactorVerified: { label: '2FA Verified', type: 'text' },
       },
       async authorize(credentials) {
+        // Mode connexion après vérification 2FA
+        if (credentials?.userId && credentials?.twoFactorVerified === 'true') {
+          const user = await prisma.user.findUnique({
+            where: { id: credentials.userId },
+            select: {
+              id: true,
+              email: true,
+              name: true,
+              role: true,
+              emailVerified: true,
+              twoFactorEnabled: true,
+            },
+          });
+
+          if (!user || !user.twoFactorEnabled) {
+            return null;
+          }
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            emailVerified: user.emailVerified,
+          };
+        }
+
+        // Mode connexion normale
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
 
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            role: true,
+            emailVerified: true,
+            passwordHash: true,
+            twoFactorEnabled: true,
+          },
         });
 
         if (!user?.passwordHash) {
@@ -63,6 +102,11 @@ export const authOptions: NextAuthConfig = {
         const isPasswordValid = await compare(credentials.password, user.passwordHash);
 
         if (!isPasswordValid) {
+          return null;
+        }
+
+        // Si 2FA activé et pas encore vérifié, retourner null pour bloquer la session
+        if (user.twoFactorEnabled && !credentials.twoFactorVerified) {
           return null;
         }
 
@@ -114,28 +158,35 @@ export const authOptions: NextAuthConfig = {
     }
   },
   callbacks: {
-    async signIn({ account }) {
+    async signIn({ user, account }) {
+      // Pour OAuth (Google/GitHub), autoriser la connexion
       if (account?.provider !== 'credentials') {
         return true;
       }
 
+      // Pour les credentials, autoriser la connexion
+      // La redirection 2FA sera gérée côté client
       return true;
     },
     async jwt({ token, user }) {
       if (user) {
         token.role = user.role;
         token.emailVerified = user.emailVerified;
+        if ('twoFactorRequired' in user) {
+          token.twoFactorRequired = user.twoFactorRequired;
+        }
       }
 
       if (token.sub) {
         const dbUser = await prisma.user.findUnique({
           where: { id: token.sub },
-          select: { role: true, emailVerified: true }
+          select: { role: true, emailVerified: true, twoFactorEnabled: true }
         });
 
         if (dbUser) {
           token.role = dbUser.role;
           token.emailVerified = dbUser.emailVerified;
+          token.twoFactorEnabled = dbUser.twoFactorEnabled;
         }
       }
 
@@ -146,6 +197,8 @@ export const authOptions: NextAuthConfig = {
         session.user.id = token.sub;
         session.user.role = token.role;
         session.user.emailVerified = token.emailVerified;
+        session.user.twoFactorRequired = token.twoFactorRequired;
+        session.user.twoFactorEnabled = token.twoFactorEnabled;
       }
       return session;
     },

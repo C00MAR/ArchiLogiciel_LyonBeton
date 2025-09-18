@@ -2,6 +2,7 @@ import { postRouter } from "~/server/api/routers/post";
 import { productsRouter } from "~/server/api/routers/products";
 import { authRouter } from "~/server/api/routers/auth";
 import { accountRouter } from "~/server/api/routers/account";
+import { twoFactorRouter } from "~/server/api/routers/twoFactor";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 
 /**
@@ -14,6 +15,7 @@ export const appRouter = createTRPCRouter({
   products: productsRouter,
   auth: authRouter,
   account: accountRouter,
+  twoFactor: twoFactorRouter,
 });
 
 // export type definition of API

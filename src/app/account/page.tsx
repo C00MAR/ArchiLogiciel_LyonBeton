@@ -247,6 +247,15 @@ export default function AccountPage() {
           </div>
 
           <div>
+            <h3>2FA</h3>
+            <a
+              href="/account/security/two-factor"
+            >
+              Add 2FA
+            </a>
+          </div>
+
+          <div>
             <h3>Changer le mot de passe</h3>
             <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)}>
               <div style={{ marginBottom: '1rem' }}>

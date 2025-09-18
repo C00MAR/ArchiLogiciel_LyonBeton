@@ -41,6 +41,25 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
+        // Si erreur de connexion, vérifier si c'est à cause de 2FA
+        try {
+          const response = await fetch('/api/auth/check-2fa', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: data.email, password: data.password }),
+          });
+
+          if (response.ok) {
+            const userData = await response.json();
+            if (userData.twoFactorRequired) {
+              router.push(`/auth/verify-2fa?userId=${userData.userId}&callbackUrl=${encodeURIComponent(from ?? '/account')}`);
+              return;
+            }
+          }
+        } catch {
+          // Si l'API fail, continuer avec l'erreur normale
+        }
+
         setError('Email ou mot de passe incorrect');
       } else if (result?.ok) {
         router.push(from ?? '/account');
