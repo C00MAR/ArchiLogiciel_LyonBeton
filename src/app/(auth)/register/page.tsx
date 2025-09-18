@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -46,6 +47,18 @@ export default function RegisterPage() {
     registerMutation.mutate(data);
   };
 
+  const handleOAuthSignIn = async (provider: 'google' | 'github') => {
+    setIsLoading(true);
+    try {
+      await signIn(provider, {
+        callbackUrl: '/account',
+      });
+    } catch {
+      setServerError('Erreur de connexion');
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div>
       <h2>Créer un compte</h2>
@@ -88,14 +101,36 @@ export default function RegisterPage() {
         <button type="submit" disabled={isLoading}>
           {isLoading ? 'Création en cours...' : "S'inscrire"}
         </button>
-
-        <div>
-          <span>
-            Déjà un compte ?{' '}
-            <a href="/auth/login">Se connecter</a>
-          </span>
-        </div>
       </form>
+
+      <div>
+        <span>ou</span>
+      </div>
+
+      <div>
+        <button
+          type="button"
+          onClick={() => handleOAuthSignIn('google')}
+          disabled={isLoading}
+        >
+          Continuer avec Google
+        </button>
+
+        <button
+          type="button"
+          onClick={() => handleOAuthSignIn('github')}
+          disabled={isLoading}
+        >
+          Continuer avec GitHub
+        </button>
+      </div>
+
+      <div>
+        <span>
+          Déjà un compte ?{' '}
+          <a href="/login">Se connecter</a>
+        </span>
+      </div>
     </div>
   );
 }
