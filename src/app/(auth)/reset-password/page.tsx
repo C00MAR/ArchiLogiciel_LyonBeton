@@ -65,7 +65,7 @@ export default function ResetPasswordPage() {
         }),
       });
 
-      const result = await response.json();
+      const result = await response.json() as { error?: string };
 
       if (response.ok) {
         setSuccess(true);
@@ -73,9 +73,9 @@ export default function ResetPasswordPage() {
           router.push('/login');
         }, 3000);
       } else {
-        setError(result.error || 'Une erreur est survenue');
+        setError(result.error ?? 'Une erreur est survenue');
       }
-    } catch (error) {
+    } catch {
       setError('Erreur de connexion au serveur');
     } finally {
       setIsLoading(false);

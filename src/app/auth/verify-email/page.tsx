@@ -5,7 +5,7 @@ export default function VerifyEmailPage() {
       <p>
         Nous vous avons envoyé un email de confirmation.
         <br />
-        Cliquez sur le lien qu'il contient pour activer votre compte.
+        Cliquez sur le lien qu&apos;il contient pour activer votre compte.
       </p>
       <a href="/auth/login">Retour à la connexion</a>
     </div>

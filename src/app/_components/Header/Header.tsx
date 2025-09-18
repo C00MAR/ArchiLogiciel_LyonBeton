@@ -12,7 +12,7 @@ import bemCondition from "../../helpers/bemHelper";
 import "./Header.css";
 
 export default function Header() {
-    const { data: session, status } = useSession();
+    const { data: session } = useSession();
     const pathname = usePathname();
     const isHomePage = pathname === "/";
     const [showHeader, setShowHeader] = useState(!isHomePage);
@@ -87,7 +87,7 @@ export default function Header() {
                     <span>Boutique</span>
                 </Link>
                 <Link href="/" className="header__logo">
-                    <img src={logo.src} alt="Lyon Beton" />
+                    <img src={(logo as { src: string }).src} alt="Lyon Beton" />
                 </Link>
                 <div className="header__actions">
                     {session ? (
@@ -105,7 +105,7 @@ export default function Header() {
                                 <span>Se Connecter</span>
                             </Link>
                             <Link href="/register" className="header__account">
-                                <span>S'inscrire</span>
+                                <span>S inscrire</span>
                             </Link>
                         </>
                     )}
@@ -121,10 +121,10 @@ export default function Header() {
                             className={bemCondition("header__actions-input", "visible", showInputSearch)}
                             placeholder="Rechercher..."
                         />
-                        <img src={search.src} alt="Search" />
+                        <img src={(search as { src: string }).src} alt="Search" />
                     </span>
                     <Link href="/cart" className="header__actions-icon cart">
-                        <img src={cart.src} alt="Cart" />
+                        <img src={(cart as { src: string }).src} alt="Cart" />
                     </Link>
                 </div>
             </div>

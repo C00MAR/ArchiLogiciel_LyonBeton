@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { hash, compare } from 'bcryptjs';
 import { auth } from '~/lib/auth';
@@ -24,7 +24,7 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
+    const body = await request.json() as unknown;
     const validatedData = changePasswordSchema.parse(body);
 
     const user = await prisma.user.findUnique({
@@ -32,7 +32,7 @@ export async function PATCH(request: NextRequest) {
       select: { passwordHash: true },
     });
 
-    if (!user || !user.passwordHash) {
+    if (!user?.passwordHash) {
       return NextResponse.json(
         { message: 'Utilisateur non trouvé' },
         { status: 404 }

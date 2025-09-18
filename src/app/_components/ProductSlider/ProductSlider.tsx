@@ -13,7 +13,7 @@ export default function ProductSlider({ product }: Props) {
 
     const { title, id, imgNumber } = product;
 
-    const images = [...Array(imgNumber || 1)].map((_, index) => (
+    const images = Array.from({ length: imgNumber ?? 1 }).map((_, index) => (
         <div
             key={`${id}_${index}`}
             className="carrousel__image"

@@ -11,7 +11,7 @@ export default async function AdminPage() {
   return (
     <div>
       <h1>Administration</h1>
-      <p>Bienvenue dans l'interface d'administration, {session.user.name} !</p>
+      <p>Bienvenue dans l interface d administration, {session.user.name} !</p>
       <p>Votre rôle : {session.user.role}</p>
     </div>
   );

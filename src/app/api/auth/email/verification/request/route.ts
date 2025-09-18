@@ -10,7 +10,7 @@ const requestSchema = z.object({
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
+    const body = await request.json() as unknown;
     const { email } = requestSchema.parse(body);
 
     const user = await prisma.user.findUnique({
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
       },
     });
 
-    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NEXTAUTH_URL ?? 'http://localhost:3000';
     const verificationUrl = `${baseUrl}/api/auth/email/verification/verify?token=${token}`;
 
     const { text, html } = generateVerificationEmailTemplate(verificationUrl, user.name);
