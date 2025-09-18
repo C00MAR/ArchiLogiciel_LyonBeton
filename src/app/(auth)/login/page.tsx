@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -18,6 +18,8 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const from = searchParams.get('from');
 
   const {
     register,
@@ -41,7 +43,7 @@ export default function LoginPage() {
       if (result?.error) {
         setError('Email ou mot de passe incorrect');
       } else if (result?.ok) {
-        router.push('/dashboard');
+        router.push(from || '/account');
       }
     } catch (error) {
       setError('Erreur de connexion');
@@ -53,6 +55,9 @@ export default function LoginPage() {
   return (
     <div>
       <h2>Se connecter</h2>
+      {from && (
+        <p>Vous devez vous connecter pour accéder à cette page.</p>
+      )}
       <form onSubmit={handleSubmit(onSubmit)}>
         {error && <div>{error}</div>}
 

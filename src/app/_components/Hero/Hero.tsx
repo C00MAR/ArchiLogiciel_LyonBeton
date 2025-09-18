@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { type Session } from "next-auth";
 import styles from './Hero.module.scss';
 
 interface HeroProps {
@@ -18,7 +18,6 @@ interface HeroProps {
     category?: string;
   }>;
   showScrollIndicator?: boolean;
-  session?: Session | null;
 }
 
 export default function Hero({
@@ -39,8 +38,8 @@ export default function Hero({
     { name: "SOFFFA", category: "COLLAB" },
     { name: "L'ARBUISSONIËRE", category: "SHOOTING SESSIONS" }
   ],
-  session,
 }: HeroProps) {
+  const { data: session } = useSession();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   const [isVideoError, setIsVideoError] = useState(false);
@@ -97,7 +96,7 @@ export default function Hero({
                 return (
                   <Link
                     key={index}
-                    href={session ? "/api/auth/signout" : "/api/auth/signin"}
+                    href={session ? "/account" : "/login"}
                     className={styles.navItem}
                   >
                     {session ? "COMPTE" : "SE CONNECTER"}

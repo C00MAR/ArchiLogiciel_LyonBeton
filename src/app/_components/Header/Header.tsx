@@ -1,14 +1,17 @@
 "use client";
 
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import cart from "~/../public/assets/cart.svg";
 import logo from "~/../public/assets/logo.svg";
 import search from "~/../public/assets/search.svg";
+import LogoutButton from "~/components/LogoutButton";
 import bemCondition from "../../helpers/bemHelper";
 import "./Header.css";
 
 export default function Header() {
+    const { data: session, status } = useSession();
     const [showHeader, setShowHeader] = useState(false);
     const [showInputSearch, setShowInputSearch] = useState(false);
     const lastScrollY = useRef(0);
@@ -79,9 +82,25 @@ export default function Header() {
                     <img src={logo.src} alt="Lyon Beton" />
                 </Link>
                 <div className="header__actions">
-                    <Link href="/api/auth/signin" className="header__account">
-                        <span>Compte</span>
-                    </Link>
+                    {session ? (
+                        <>
+                            <Link href="/account" className="header__account inversed">
+                                <span>Mon Compte</span>
+                            </Link>
+                            <LogoutButton className="header__account noBorder">
+                                Se déconnecter
+                            </LogoutButton>
+                        </>
+                    ) : (
+                        <>
+                            <Link href="/login" className="header__account inversed">
+                                <span>Se Connecter</span>
+                            </Link>
+                            <Link href="/register" className="header__account">
+                                <span>S'inscrire</span>
+                            </Link>
+                        </>
+                    )}
                     <span
                         className="header__actions-icon search"
                         onClick={toggleSearch}

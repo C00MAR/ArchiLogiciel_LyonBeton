@@ -4,6 +4,8 @@ import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 
 import { TRPCReactProvider } from "~/trpc/react";
+import { auth } from "~/lib/auth";
+import SessionProvider from "~/components/SessionProvider";
 import Header from "./_components/Header/Header";
 
 export const metadata: Metadata = {
@@ -16,16 +18,20 @@ const geist = Geist({
   subsets: ["latin"],
 });
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const session = await auth();
+
   return (
     <html lang="fr">
       <body className={geist.className}>
-        <TRPCReactProvider>
+        <SessionProvider session={session}>
+          <TRPCReactProvider>
           <Header />
           {children}
           </TRPCReactProvider>
+        </SessionProvider>
       </body>
     </html>
   );
