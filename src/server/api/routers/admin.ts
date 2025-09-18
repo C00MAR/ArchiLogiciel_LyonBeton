@@ -51,7 +51,6 @@ async function logAuditAction(
 }
 
 export const adminRouter = createTRPCRouter({
-  // Gestion utilisateurs
   getAllUsers: adminProcedure
     .query(async ({ ctx }) => {
       return await ctx.db.user.findMany({
@@ -92,7 +91,6 @@ export const adminRouter = createTRPCRouter({
         },
       });
 
-      // Audit log
       await logAuditAction(
         ctx,
         'ROLE_CHANGE',
@@ -111,7 +109,6 @@ export const adminRouter = createTRPCRouter({
       };
     }),
 
-  // Gestion produits
   getAllProducts: adminProcedure
     .query(async ({ ctx }) => {
       return await ctx.db.product.findMany({
@@ -142,7 +139,6 @@ export const adminRouter = createTRPCRouter({
         data: input,
       });
 
-      // Audit log
       await logAuditAction(
         ctx,
         'CREATE',
@@ -187,7 +183,6 @@ export const adminRouter = createTRPCRouter({
         },
       });
 
-      // Audit log
       await logAuditAction(
         ctx,
         'UPDATE',
@@ -224,7 +219,6 @@ export const adminRouter = createTRPCRouter({
         where: { id: input.id },
       });
 
-      // Audit log
       await logAuditAction(
         ctx,
         'DELETE',
@@ -241,7 +235,6 @@ export const adminRouter = createTRPCRouter({
       };
     }),
 
-  // Audit logs
   getAuditLogs: adminProcedure
     .input(z.object({
       limit: z.number().default(50),

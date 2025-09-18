@@ -7,7 +7,6 @@ import {
   protectedProcedure,
 } from "~/server/api/trpc";
 
-// Schemas
 const updateProfileSchema = z.object({
   name: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
   avatarUrl: z.string().url('URL invalide').optional().or(z.literal('')),

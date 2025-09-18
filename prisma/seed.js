@@ -8,7 +8,7 @@ async function main() {
 		{
 			title: "Dice",
 			subtitle: "Configuration 14",
-			price: 411000, // 4110€ in centimes
+			price: 411000,
 			ref: "DC-059",
 			identifier: "dice",
 			imgNumber: 4,
@@ -18,7 +18,7 @@ async function main() {
 		{
 			title: "Strut the pill",
 			subtitle: "Table basse",
-			price: 79000, // 790€ in centimes
+			price: 79000,
 			ref: "10133",
 			identifier: "table",
 			imgNumber: 3,
@@ -28,7 +28,7 @@ async function main() {
 		{
 			title: "Cloud 745",
 			subtitle: "Support papier toilette",
-			price: 11500, // 115€ in centimes
+			price: 11500,
 			ref: "DB-09104",
 			identifier: "pq",
 			imgNumber: 2,
@@ -38,7 +38,7 @@ async function main() {
 		{
 			title: "Twist",
 			subtitle: "Tables d'appoint",
-			price: 59000, // 590€ in centimes
+			price: 59000,
 			ref: "D-09400-PE-014",
 			identifier: "twist",
 			imgNumber: 4,
@@ -69,7 +69,6 @@ async function main() {
 			},
 		});
 
-		// prix defaut stripe
 		await prisma.price.upsert({
 			where: { stripePriceId: `price_${product.identifier}_default` },
 			update: {

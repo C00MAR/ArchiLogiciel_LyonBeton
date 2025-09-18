@@ -68,6 +68,7 @@ model User {
   passwordResetTokens PasswordResetToken[]
   cart                Cart?
   auditLogs           AuditLog[]
+  orders              Order[]
 }
 
 model VerificationToken {
@@ -90,19 +91,20 @@ model PasswordResetToken {
 }
 
 model Product {
-  id          Int        @id @default(autoincrement())
+  id          Int         @id @default(autoincrement())
   title       String
   subtitle    String
   description String
-  price       Int        // pour template front, faire l'update plustard
+  price       Int         // pour template front, faire l'update plustard
   imgNumber   Int
-  identifier  String     @unique
-  ref         String     @unique
+  identifier  String      @unique
+  ref         String      @unique
   stripeProductId String? @unique
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
   cartItems   CartItem[]
   prices      Price[]
+  orderItems  OrderItem[]
 
   @@index([title])
 }
@@ -157,4 +159,51 @@ model AuditLog {
 
   @@index([adminId])
   @@index([createdAt])
+}
+
+model Order {
+  id                String      @id @default(cuid())
+  userId            String?
+  user              User?       @relation(fields: [userId], references: [id])
+  stripeSessionId   String      @unique
+  stripePaymentId   String?
+  total             Int
+  status            OrderStatus @default(PENDING)
+  customerEmail     String
+  customerName      String?
+  shippingAddress   Json?
+  billingAddress    Json?
+  items             OrderItem[]
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  @@index([userId])
+  @@index([stripeSessionId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Int
+  title     String
+  subtitle  String
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
 }

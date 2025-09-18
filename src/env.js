@@ -15,6 +15,8 @@ export const env = createEnv({
     EMAIL_SERVER_PORT: z.string(),
     EMAIL_FROM: z.string(),
     DATABASE_URL: z.string().url(),
+    STRIPE_SECRET_KEY: z.string(),
+    STRIPE_WEBHOOK_SECRET: z.string(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
@@ -39,6 +41,8 @@ export const env = createEnv({
     EMAIL_SERVER_PORT: process.env.EMAIL_SERVER_PORT,
     EMAIL_FROM: process.env.EMAIL_FROM,
     DATABASE_URL: process.env.DATABASE_URL,
+    STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
+    STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
     NODE_ENV: process.env.NODE_ENV,
   },
   /**

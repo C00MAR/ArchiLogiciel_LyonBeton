@@ -114,13 +114,12 @@ export const authRouter = createTRPCRouter({
         });
       }
 
-      // Supprimer les anciens tokens
       await ctx.db.verificationToken.deleteMany({
         where: { identifier: email },
       });
 
       const token = crypto.randomBytes(32).toString('hex');
-      const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 heures
+      const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
       await ctx.db.verificationToken.create({
         data: {
@@ -152,25 +151,22 @@ export const authRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const { email } = input;
 
-      // Vérifier que l'utilisateur existe
       const user = await ctx.db.user.findUnique({
         where: { email },
       });
 
       if (!user) {
-        // Pour des raisons de sécurité, on renvoie toujours un message de succès
         return {
           message: 'Si cet email existe dans notre base de données, vous recevrez un email de réinitialisation',
         };
       }
 
-      // Supprimer les anciens tokens de réinitialisation
       await ctx.db.passwordResetToken.deleteMany({
         where: { userId: user.id },
       });
 
       const token = crypto.randomBytes(32).toString('hex');
-      const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 heure
+      const expires = new Date(Date.now() + 60 * 60 * 1000);
 
       await ctx.db.passwordResetToken.create({
         data: {
@@ -180,7 +176,6 @@ export const authRouter = createTRPCRouter({
         },
       });
 
-      // Envoyer l'email
       const baseUrl = process.env.NEXTAUTH_URL ?? 'http://localhost:3000';
       const resetUrl = `${baseUrl}/reset-password?token=${token}`;
 
@@ -203,7 +198,6 @@ export const authRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const { token, password } = input;
 
-      // Trouver le token de réinitialisation
       const resetToken = await ctx.db.passwordResetToken.findUnique({
         where: { token },
         include: { user: true },
@@ -218,13 +212,11 @@ export const authRouter = createTRPCRouter({
 
       const passwordHash = await hash(password, 12);
 
-      // Mettre à jour le mot de passe
       await ctx.db.user.update({
         where: { id: resetToken.userId },
         data: { passwordHash },
       });
 
-      // Supprimer le token utilisé
       await ctx.db.passwordResetToken.delete({
         where: { token },
       });
