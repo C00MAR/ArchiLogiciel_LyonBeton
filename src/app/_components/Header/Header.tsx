@@ -2,6 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import cart from "~/../public/assets/cart.svg";
 import logo from "~/../public/assets/logo.svg";
@@ -12,7 +13,9 @@ import "./Header.css";
 
 export default function Header() {
     const { data: session, status } = useSession();
-    const [showHeader, setShowHeader] = useState(false);
+    const pathname = usePathname();
+    const isHomePage = pathname === "/";
+    const [showHeader, setShowHeader] = useState(!isHomePage);
     const [showInputSearch, setShowInputSearch] = useState(false);
     const lastScrollY = useRef(0);
     const scrollTimeout = useRef<NodeJS.Timeout | null>(null);
@@ -20,6 +23,11 @@ export default function Header() {
     const searchIconRef = useRef<HTMLSpanElement>(null);
 
     useEffect(() => {
+        if (!isHomePage) {
+            setShowHeader(true);
+            return;
+        }
+
         const handleScroll = () => {
             const currentScrollY = window.scrollY;
             if (currentScrollY < 150 || currentScrollY > lastScrollY.current) {
@@ -42,7 +50,7 @@ export default function Header() {
             window.removeEventListener("scroll", handleScroll);
             if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
         };
-    }, []);
+    }, [isHomePage]);
 
     const toggleSearch = () => {
         setShowInputSearch(prev => {
