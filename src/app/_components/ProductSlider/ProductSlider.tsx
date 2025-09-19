@@ -17,7 +17,7 @@ export default function ProductSlider({ product }: Props) {
         <div
             key={`${identifier}_${index}`}
             className="carrousel__image"
-            style={{ backgroundImage: `url('/product/${identifier}_${index}.webp')` }}
+            style={{ backgroundImage: `url('https://res.cloudinary.com/ddlod4evf/image/products/${identifier}_${index}.webp')` }}
         />
     ));
 
@@ -26,6 +26,7 @@ export default function ProductSlider({ product }: Props) {
             <div className="carrousel__container" aria-label={title} ref={carrouselContainerRef}>
                 {images}
                 {images}
+                {imgNumber === 1 && images}
             </div>
         </div>
     );
