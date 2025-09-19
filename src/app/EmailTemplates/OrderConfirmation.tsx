@@ -38,43 +38,43 @@ L'équipe Lyon Béton
 	`;
 
 	const html = `
-		<div style="font-family: Arial, sans-serif; background-color: #f3f4f6; padding: 24px;">
-			<div style="max-width: 700px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 6px 20px rgba(17, 24, 39, 0.08);">
-				<div style="background: linear-gradient(135deg, #346df1 0%, #4f80ff 100%); padding: 32px 20px; text-align: center;">
-					<h1 style="color: #ffffff; margin: 0; font-size: 22px;">Confirmation de commande</h1>
+		<div style="font-family: Arial, Helvetica, sans-serif; background-color: #ebebeb; padding: 24px;">
+			<div style="max-width: 700px; margin: 0 auto; background-color: #ffffff;">
+				<div style="background: #231f20; padding: 32px 20px; text-align: center;">
+					<h1 style="color: #ebebeb; margin: 0; font-size: 22px; letter-spacing: 0.2px;">Confirmation de commande</h1>
 				</div>
 
-				<div style="padding: 32px 24px; color: #111827;">
+				<div style="padding: 32px 24px; color: #231f20; line-height: 1.6;">
 					<p style="margin: 0 0 16px 0;">Bonjour <strong>${customerName}</strong>,</p>
 					<p style="margin: 0 0 20px 0;">Merci pour votre commande ! Votre paiement a été confirmé avec succès.</p>
 
-					<div style="background-color: #f9fafb; padding: 20px; border-radius: 10px; margin: 20px 0; border: 1px solid #e5e7eb;">
-						<h3 style="margin: 0 0 16px 0; color: #374151;">Commande #${orderDetails.id}</h3>
+					<div style="background-color: #e3e3e3; padding: 20px; margin: 20px 0; border: 1px solid #e3e3e3;">
+						<h3 style="margin: 0 0 16px 0; color: #231f20;">Commande <strong>#${orderDetails.id}</strong></h3>
 
 						<table style="width: 100%; border-collapse: collapse;">
 							<thead>
-								<tr style="border-bottom: 2px solid #e5e7eb;">
-									<th style="text-align: left; padding: 10px; color: #6b7280;">Produit</th>
-									<th style="text-align: right; padding: 10px; color: #6b7280;">Quantité</th>
-									<th style="text-align: right; padding: 10px; color: #6b7280;">Prix</th>
+								<tr style="border-bottom: 2px solid #e3e3e3;">
+									<th style="text-align: left; padding: 10px; color: #231f20;">Produit</th>
+									<th style="text-align: right; padding: 10px; color: #231f20;">Quantité</th>
+									<th style="text-align: right; padding: 10px; color: #231f20;">Prix</th>
 								</tr>
 							</thead>
 							<tbody>
 								${orderDetails.items.map(item => `
-									<tr style="border-bottom: 1px solid #e5e7eb;">
-										<td style="padding: 10px;">
+									<tr style=\"border-bottom: 1px solid #e3e3e3;\">
+										<td style=\"padding: 10px;\">
 											<strong>${item.title}</strong><br>
-											<small style="color: #6b7280;">${item.subtitle}</small>
+											<small style=\"color: #231f20;\">${item.subtitle}</small>
 										</td>
-										<td style="text-align: right; padding: 10px;">${item.quantity}</td>
-										<td style="text-align: right; padding: 10px;">${(item.price * item.quantity / 100).toFixed(2)}€</td>
+										<td style=\"text-align: right; padding: 10px;\">${item.quantity}</td>
+										<td style=\"text-align: right; padding: 10px;\">${(item.price * item.quantity / 100).toFixed(2)}€</td>
 									</tr>
 								`).join('')}
 							</tbody>
 							<tfoot>
-								<tr style="border-top: 2px solid #e5e7eb; font-weight: bold;">
+								<tr style="border-top: 2px solid #e3e3e3; font-weight: bold;">
 									<td colspan="2" style="padding: 10px; text-align: right;">Total :</td>
-									<td style="text-align: right; padding: 10px; font-size: 18px; color: #346df1;">${totalInEuros}€</td>
+									<td style="text-align: right; padding: 10px; font-size: 18px; color: #231f20;"><strong>${totalInEuros}€</strong></td>
 								</tr>
 							</tfoot>
 						</table>
@@ -85,7 +85,7 @@ L'équipe Lyon Béton
 					<p style="margin: 20px 0 0 0;">Cordialement,<br><strong>L'équipe Lyon Béton</strong></p>
 				</div>
 
-				<div style="background-color: #f9fafb; padding: 16px; text-align: center; font-size: 12px; color: #6b7280;">
+				<div style="background-color: #ebebeb; padding: 16px; text-align: center; font-size: 12px; color: #231f20;">
 					<p style="margin: 0;">Cet email a été envoyé suite à votre commande sur notre site.</p>
 				</div>
 			</div>

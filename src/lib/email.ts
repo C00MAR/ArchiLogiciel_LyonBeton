@@ -3,6 +3,7 @@ import EmailVerification from "~/app/EmailTemplates/EmailVerification";
 import OrderConfirmation from "~/app/EmailTemplates/OrderConfirmation";
 import PaymentFailed from "~/app/EmailTemplates/PaymentFailed";
 import PasswordReset from "~/app/EmailTemplates/PasswordReset";
+import PaymentConfirmation from "~/app/EmailTemplates/PaymentConfirmation";
 
 export interface EmailOptions {
   to: string;
@@ -95,4 +96,12 @@ export function generatePasswordResetEmailTemplate(
   userName: string,
 ) {
   return PasswordReset({ resetUrl, userName });
+}
+
+export function generatePaymentConfirmationEmailTemplate(
+  orderId: string,
+  total: number,
+  customerName: string,
+) {
+  return PaymentConfirmation({ orderId, total, customerName });
 }

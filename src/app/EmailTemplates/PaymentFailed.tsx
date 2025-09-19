@@ -34,27 +34,27 @@ L'équipe Lyon Béton
 	`;
 
 	const html = `
-		<div style="font-family: Arial, sans-serif; background-color: #f3f4f6; padding: 24px;">
-			<div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 6px 20px rgba(17, 24, 39, 0.08);">
-				<div style="background: linear-gradient(135deg, #dc3545 0%, #ff6b6b 100%); padding: 32px 20px; text-align: center;">
-					<h1 style="color: #ffffff; margin: 0; font-size: 22px;">Problème de paiement</h1>
+		<div style="font-family: Arial, Helvetica, sans-serif; background-color: #ebebeb; padding: 24px;">
+			<div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+				<div style="background: #231f20; padding: 32px 20px; text-align: center;">
+					<h1 style="color: #ebebeb; margin: 0; font-size: 22px; letter-spacing: 0.2px;">Problème de paiement</h1>
 				</div>
 
-				<div style="padding: 32px 24px; color: #111827;">
+				<div style="padding: 32px 24px; color: #231f20; line-height: 1.6;">
 					<p style="margin: 0 0 16px 0;">Bonjour <strong>${customerName}</strong>,</p>
 					<p style="margin: 0 0 16px 0;">Nous vous informons qu'un problème est survenu lors du traitement de votre paiement.</p>
 
 					${orderDetails.id || orderDetails.total ? `
-					<div style="background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 16px; border-radius: 10px; margin: 20px 0;">
-						${orderDetails.id ? `<p style=\"margin: 0 0 6px 0;\"><strong>Commande concernée :</strong> #${orderDetails.id}</p>` : ''}
-						${orderDetails.total ? `<p style=\"margin: 0;\"><strong>Montant :</strong> ${(orderDetails.total / 100).toFixed(2)}€</p>` : ''}
+					<div style="background-color: #e3e3e3; border: 1px solid #e3e3e3; padding: 16px; margin: 20px 0;">
+						${orderDetails.id ? `<p style=\"margin: 0 0 6px 0;\">Commande concernée : <strong>#${orderDetails.id}</strong></p>` : ''}
+						${orderDetails.total ? `<p style=\"margin: 0;\">Montant : <strong>${(orderDetails.total / 100).toFixed(2)}€</strong></p>` : ''}
 					</div>
 					` : ''}
 
 					<p style="margin: 0 0 16px 0;"><strong>Aucun montant n'a été débité de votre compte.</strong></p>
 
 					<p style="margin: 0 0 8px 0;">Vous pouvez réessayer votre commande à tout moment. Si le problème persiste, veuillez vérifier :</p>
-					<ul style="margin: 0 0 16px 18px; color: #374151;">
+					<ul style="margin: 0 0 16px 18px; color: #231f20;">
 						<li>Les informations de votre carte bancaire</li>
 						<li>La limite de votre carte</li>
 						<li>Contacter votre banque si nécessaire</li>
@@ -65,7 +65,7 @@ L'équipe Lyon Béton
 					<p style="margin: 0;">Cordialement,<br><strong>L'équipe Lyon Béton</strong></p>
 				</div>
 
-				<div style="background-color: #f9fafb; padding: 16px; text-align: center; font-size: 12px; color: #6b7280;">
+				<div style="background-color: #ebebeb; padding: 16px; text-align: center; font-size: 12px; color: #231f20;">
 					<p style="margin: 0;">Cet email a été envoyé suite à un problème de paiement sur notre site.</p>
 				</div>
 			</div>

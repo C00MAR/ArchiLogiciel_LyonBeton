@@ -1,13 +1,16 @@
 import { NextResponse } from 'next/server';
-import { sendEmail } from '~/lib/email';
+import { generateVerificationEmailTemplate, sendEmail } from '~/lib/email';
 
 export async function GET() {
+
+  const { text, html } = generateVerificationEmailTemplate("https://google.com", "brv");
+
   try {
     await sendEmail({
       to: 'test@example.com',
       subject: 'Test email from Next.js',
-      text: 'Ceci est un email de test pour vérifier que MailDev fonctionne.',
-      html: '<p>Ceci est un <strong>email de test</strong> pour vérifier que MailDev fonctionne.</p>'
+      text: text,
+      html: html
     });
 
     return NextResponse.json(
