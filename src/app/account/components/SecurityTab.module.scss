@@ -1,0 +1,161 @@
+@import '../../../styles/variables.scss';
+
+.securityTab {
+  $namespace: &;
+
+  padding: 0 $spacer-24;
+
+  &__title {
+    font-family: 'Sk-Modernist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: $font-size-2xl;
+    margin-bottom: $spacer-4;
+    font-weight: 500;
+    color: $secondary-color;
+  }
+
+  &__section {
+    margin-bottom: $spacer-8;
+    padding-bottom: $spacer-8;
+    border-bottom: 1px solid $secondary-color;
+
+    &:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+  }
+
+  &__sectionTitle {
+    font-family: 'Sk-Modernist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: $font-size-lg;
+    margin-bottom: $spacer-8;
+    color: $secondary-color;
+  }
+
+  &__emailInfo {
+    display: flex;
+    flex-direction: column;
+    gap: $spacer-8;
+
+    p {
+      margin: 0;
+      font-size: $font-size-base;
+    }
+  }
+
+  &__status {
+    margin-left: $spacer-8;
+    padding: $spacer-4 $spacer-8;
+    border-radius: $border-radius-4;
+    font-size: $font-size-sm;
+    font-weight: 600;
+
+    &--verified {
+      background-color: rgba($secondary-color, 0.1);
+      color: $secondary-color;
+    }
+
+    &--unverified {
+      background-color: rgba($secondary-color, 0.1);
+      color: $secondary-color;
+    }
+  }
+
+  &__verifyButton {
+    color: $secondary-color;
+    padding: $spacer-4 $spacer-8;
+    border: 1px solid $secondary-color;
+    border-radius: none;
+    cursor: pointer;
+    font-size: $font-size-base;
+    font-weight: 600;
+    transition: all $transition-base;
+    align-self: flex-start;
+    margin-top: $spacer-8;
+
+    &:hover:not(:disabled) {
+      background-color: $secondary-color;
+      color: $primary-color;
+      transition: all $transition-base;
+      border: 1px solid $secondary-color;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  &__link {
+    color: $secondary-color;
+    text-decoration: none;
+    font-weight: 600;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: $spacer-2;
+    max-width: 400px;
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: $spacer-2;
+  }
+
+  &__label {
+    font-family: 'Sk-Modernist-Light', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 300;
+    color: $secondary-color;
+    font-size: $font-size-sm;
+  }
+
+  &__input {
+    padding: $spacer-2;
+    border: 1px solid $primary-color;
+    border-radius: $border-radius-4;
+    font-size: $font-size-base;
+    transition: all $transition-base;
+    outline: none;
+
+    &:focus {
+      outline: none;
+      border-color: $secondary-color;
+    }
+  }
+
+  &__error {
+    color: $secondary-color;
+    font-size: $font-size-sm;
+    margin: 0;
+  }
+
+  &__passwordButton {
+    color: $secondary-color;
+    padding: $spacer-4 $spacer-8;
+    border: 1px solid $secondary-color;
+    border-radius: none;
+    cursor: pointer;
+    font-size: $font-size-base;
+    font-weight: 600;
+    transition: all $transition-base;
+    align-self: flex-start;
+
+    &:hover:not(:disabled) {
+      background-color: $secondary-color;
+      color: $primary-color;
+      transition: all $transition-base;
+      border: 1px solid $secondary-color;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}

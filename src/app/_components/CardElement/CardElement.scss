@@ -17,7 +17,7 @@
 
     &__info {
         transform: translateY(calc(-100% - 8px));
-        transition: transform 0.3s ease-in-out;
+        transition: all 0.3s ease-in-out;
         display: flex;
         align-items: flex-start;
         flex-direction: column;
@@ -37,7 +37,7 @@
 
     &__data {
         transform: translateY(calc(100% + 8px));
-        transition: transform 0.3s ease-in-out;
+        transition: all 0.3s ease-in-out;
         display: flex;
         gap: 4px;
         font-size: 8px;

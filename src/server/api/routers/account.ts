@@ -9,7 +9,6 @@ import {
 
 const updateProfileSchema = z.object({
   name: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
-  avatarUrl: z.string().url('URL invalide').optional().or(z.literal('')),
 });
 
 const changePasswordSchema = z.object({
@@ -25,13 +24,11 @@ export const accountRouter = createTRPCRouter({
         where: { id: ctx.session.user.id },
         data: {
           name: input.name,
-          image: input.avatarUrl ?? null,
         },
         select: {
           id: true,
           name: true,
           email: true,
-          image: true,
           role: true,
           emailVerified: true,
         },
@@ -87,7 +84,6 @@ export const accountRouter = createTRPCRouter({
           id: true,
           name: true,
           email: true,
-          image: true,
           role: true,
           emailVerified: true,
         },
