@@ -1,3 +1,4 @@
+import React from 'react';
 import { redirect } from 'next/navigation';
 import LogoutButton from '~/components/LogoutButton';
 import { auth } from '~/lib/auth';

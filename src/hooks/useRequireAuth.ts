@@ -4,7 +4,16 @@ import { useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
-export function useRequireAuth(redirectTo = '/login') {
+interface UseRequireAuthOptions {
+  requireAdmin?: boolean;
+  requireEmailVerified?: boolean;
+  requiredPermissions?: string[];
+}
+
+export function useRequireAuth(
+  redirectTo = '/login',
+  options: UseRequireAuthOptions = {}
+) {
   const { data: session, status } = useSession();
   const router = useRouter();
 
@@ -12,13 +21,42 @@ export function useRequireAuth(redirectTo = '/login') {
     if (status === 'loading') return;
 
     if (!session) {
-      router.push(redirectTo);
+      const currentUrl = typeof window !== 'undefined'
+        ? window.location.pathname + window.location.search
+        : '';
+      const callbackUrl = currentUrl ? `?callbackUrl=${encodeURIComponent(currentUrl)}` : '';
+      router.push(redirectTo + callbackUrl);
+      return;
     }
-  }, [session, status, router, redirectTo]);
+
+    if (options.requireAdmin && session.user.role !== 'ADMIN') {
+      router.push('/unauthorized');
+      return;
+    }
+
+    if (options.requireEmailVerified && !session.user.emailVerified) {
+      router.push('/auth/verify-email');
+      return;
+    }
+
+    if (options.requiredPermissions && options.requiredPermissions.length > 0) {
+      if (session.user.role !== 'ADMIN') {
+        const userPermissions = session.user.permissions || [];
+        const hasAllPermissions = options.requiredPermissions.every(permission =>
+          userPermissions.includes(permission)
+        );
+
+        if (!hasAllPermissions) {
+          router.push('/unauthorized');
+          return;
+        }
+      }
+    }
+  }, [session, status, router, redirectTo, options]);
 
   return {
     session,
-    loading: status === 'loading',
+    isLoading: status === 'loading',
     authenticated: !!session,
   };
 }
