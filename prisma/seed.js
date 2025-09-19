@@ -112,6 +112,48 @@ async function main() {
 	} else {
 		console.log("Admin already created");
 	}
+
+	const sampleOrderId = "order_seed_example";
+	const existingOrder = await prisma.order.findFirst({
+		where: { stripeSessionId: `cs_seed_${sampleOrderId}` }
+	});
+
+	if (!existingOrder) {
+		const admin = await prisma.user.findUnique({
+			where: { email: adminEmail }
+		});
+
+		const firstProduct = await prisma.product.findFirst();
+
+		if (admin && firstProduct) {
+			await prisma.order.create({
+				data: {
+					stripeSessionId: `cs_seed_${sampleOrderId}`,
+					stripePaymentId: `pi_seed_${sampleOrderId}`,
+					total: 48500,
+					status: 'DELIVERED',
+					customerEmail: admin.email,
+					customerName: admin.name,
+					userId: admin.id,
+					items: {
+						create: [
+							{
+								productId: firstProduct.id,
+								quantity: 2,
+								price: firstProduct.price,
+								title: firstProduct.title,
+								subtitle: firstProduct.subtitle,
+							}
+						]
+					}
+				}
+			});
+
+			console.log("Sample order created for admin");
+		}
+	} else {
+		console.log("Sample order already exists");
+	}
 }
 
 main()

@@ -87,6 +87,74 @@ export async function POST(req: NextRequest) {
       }),
     });
 
+    if (session?.user) {
+      try {
+        const productIds = items.map(item => item.productId);
+        const dbProducts = await db.product.findMany({
+          where: { id: { in: productIds } },
+          include: {
+            prices: {
+              where: { isActive: true, isDefault: true },
+              take: 1
+            }
+          }
+        });
+
+        if (dbProducts.length === productIds.length) {
+          const total = items.reduce((sum, item) => {
+            const product = dbProducts.find(p => p.id === item.productId);
+            if (!product) return sum;
+            const price = product.prices[0]?.amount ?? product.price;
+            return sum + (price * item.quantity);
+          }, 0);
+
+          const order = await db.$transaction(async (tx) => {
+            const newOrder = await tx.order.create({
+              data: {
+                userId: session.user.id,
+                stripeSessionId: checkoutSession.id,
+                total,
+                status: "PENDING",
+                customerEmail: session.user.email || "",
+                customerName: session.user.name || "Client",
+              }
+            });
+
+            await Promise.all(
+              items.map(async (item) => {
+                const product = dbProducts.find(p => p.id === item.productId)!;
+                const price = product.prices[0]?.amount ?? product.price;
+
+                return tx.orderItem.create({
+                  data: {
+                    orderId: newOrder.id,
+                    productId: item.productId,
+                    quantity: item.quantity,
+                    price,
+                    title: product.title,
+                    subtitle: product.subtitle,
+                  }
+                });
+              })
+            );
+
+            return newOrder;
+          });
+
+          console.log(`✅ PENDING order ${order.id} created for session: ${checkoutSession.id}`);
+          console.log(`📋 Order details:`, {
+            id: order.id,
+            stripeSessionId: order.stripeSessionId,
+            status: order.status,
+            userId: order.userId,
+            total: order.total
+          });
+        }
+      } catch (error) {
+        console.error("❌ Failed to create PENDING order:", error);
+      }
+    }
+
     return NextResponse.json({ url: checkoutSession.url });
 
   } catch (error) {

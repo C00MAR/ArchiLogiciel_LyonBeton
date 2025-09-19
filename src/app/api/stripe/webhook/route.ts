@@ -30,6 +30,14 @@ export async function POST(req: NextRequest) {
         await handleCheckoutSessionCompleted(event.data.object as Stripe.Checkout.Session);
         break;
 
+      case "payment_intent.succeeded":
+        await handlePaymentIntentSucceeded(event.data.object as Stripe.PaymentIntent);
+        break;
+
+      case "charge.succeeded":
+        await handleChargeSucceeded(event.data.object as Stripe.Charge);
+        break;
+
       case "payment_intent.payment_failed":
         await handlePaymentIntentFailed(event.data.object as Stripe.PaymentIntent);
         break;
@@ -51,15 +59,75 @@ export async function POST(req: NextRequest) {
 
 async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
   try {
-    console.log(`💰 Processing completed checkout session: ${session.id}`);
-
     const existingOrder = await db.order.findUnique({
-      where: { stripeSessionId: session.id }
+      where: { stripeSessionId: session.id },
+      include: {
+        items: {
+          include: {
+            product: true,
+          },
+        },
+      },
     });
 
+
     if (existingOrder) {
-      console.log(`⚠️ Order already exists for session ${session.id}, skipping...`);
-      return;
+      // Update existing PENDING order to PAID
+      if (existingOrder.status === "PENDING") {
+        // Get the payment intent ID - it could be a string or object
+        let paymentIntentId = null;
+        if (typeof session.payment_intent === 'string') {
+          paymentIntentId = session.payment_intent;
+        } else if (session.payment_intent && typeof session.payment_intent === 'object') {
+          paymentIntentId = session.payment_intent.id;
+        }
+
+        const updatedOrder = await db.order.update({
+          where: { id: existingOrder.id },
+          data: {
+            status: "PAID",
+            ...(paymentIntentId && { stripePaymentId: paymentIntentId }),
+          },
+          include: {
+            items: {
+              include: {
+                product: true,
+              },
+            },
+          },
+        });
+
+        try {
+          const emailTemplate = generateOrderConfirmationEmailTemplate(
+            {
+              id: updatedOrder.id,
+              total: updatedOrder.total,
+              items: updatedOrder.items.map(item => ({
+                title: item.title,
+                subtitle: item.subtitle,
+                quantity: item.quantity,
+                price: item.price,
+              }))
+            },
+            updatedOrder.customerName || "Client"
+          );
+
+          await sendEmail({
+            to: updatedOrder.customerEmail,
+            subject: `Confirmation de commande #${updatedOrder.id}`,
+            text: emailTemplate.text,
+            html: emailTemplate.html,
+          });
+
+        } catch (emailError) {
+          console.error("❌ Failed to send confirmation email:", emailError);
+        }
+
+        return;
+      } else {
+        console.log(`⚠️ Order ${existingOrder.id} already processed (status: ${existingOrder.status}), skipping...`);
+        return;
+      }
     }
 
     const lineItems = await stripe.checkout.sessions.listLineItems(session.id, {
@@ -77,9 +145,16 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
 
     const total = session.amount_total || 0;
 
+    let paymentIntentId = null;
+    if (typeof session.payment_intent === 'string') {
+      paymentIntentId = session.payment_intent;
+    } else if (session.payment_intent && typeof session.payment_intent === 'object') {
+      paymentIntentId = session.payment_intent.id;
+    }
+
     const orderData = {
       stripeSessionId: session.id,
-      stripePaymentId: session.payment_intent as string,
+      ...(paymentIntentId && { stripePaymentId: paymentIntentId }),
       total,
       status: "PAID" as const,
       customerEmail: session.customer_details?.email || session.customer_email || "",
@@ -112,13 +187,18 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
           });
         }
 
+        if (!product) {
+          console.warn(`⚠️ Product not found for Stripe product ${stripeProduct.id}, skipping item`);
+          continue;
+        }
+
         const itemData = {
           orderId: newOrder.id,
-          productId: product?.id || 0,
+          productId: product.id,
           quantity: lineItem.quantity || 1,
           price: lineItem.price?.unit_amount || 0,
-          title: product?.title || stripeProduct.name || "Produit",
-          subtitle: product?.subtitle || stripeProduct.description || "",
+          title: product.title,
+          subtitle: product.subtitle,
         };
 
         const orderItem = await tx.orderItem.create({
@@ -135,7 +215,6 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
       return { order: newOrder, items: orderItems };
     });
 
-    console.log(`✅ Order created successfully: ${order.order.id}`);
 
     try {
       const emailTemplate = generateOrderConfirmationEmailTemplate(
@@ -154,7 +233,6 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
         html: emailTemplate.html,
       });
 
-      console.log(`📧 Confirmation email sent to ${order.order.customerEmail}`);
     } catch (emailError) {
       console.error("❌ Failed to send confirmation email:", emailError);
     }
@@ -162,6 +240,91 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
   } catch (error) {
     console.error("❌ Error processing checkout session:", error);
     throw error;
+  }
+}
+
+async function handleChargeSucceeded(charge: Stripe.Charge) {
+  try {
+    if (!charge.payment_intent) {
+      console.log(`⚠️ No payment_intent found in charge ${charge.id}`);
+      return;
+    }
+
+    const paymentIntentId = typeof charge.payment_intent === 'string'
+      ? charge.payment_intent
+      : charge.payment_intent.id;
+
+
+    const allOrders = await db.order.findMany({
+      select: { id: true, stripeSessionId: true, stripePaymentId: true, status: true },
+      orderBy: { createdAt: 'desc' },
+      take: 5
+    });
+
+    const existingOrder = await db.order.findFirst({
+      where: {
+        OR: [
+          { stripePaymentId: paymentIntentId },
+          ...(charge.metadata?.session_id ? [{ stripeSessionId: charge.metadata.session_id }] : [])
+        ]
+      }
+    });
+
+
+    if (existingOrder && existingOrder.status === "PENDING") {
+      await db.order.update({
+        where: { id: existingOrder.id },
+        data: {
+          status: "PAID",
+          stripePaymentId: paymentIntentId,
+        }
+      });
+
+      console.log(`✅ Order ${existingOrder.id} updated to PAID via charge event`);
+    } else if (existingOrder) {
+      console.log(`⚠️ Order found via charge but status is ${existingOrder.status}, skipping`);
+    } else {
+      console.log(`⚠️ No order found for charge ${charge.id} with payment_intent ${paymentIntentId}`);
+    }
+
+  } catch (error) {
+    console.error("❌ Error processing charge succeeded:", error);
+  }
+}
+
+async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent) {
+  try {
+    console.log(`✅ Processing succeeded payment intent: ${paymentIntent.id}`);
+
+    const existingOrder = await db.order.findFirst({
+      where: {
+        OR: [
+          { stripePaymentId: paymentIntent.id },
+          ...(paymentIntent.metadata?.session_id ? [{ stripeSessionId: paymentIntent.metadata.session_id }] : [])
+        ]
+      }
+    });
+
+    if (existingOrder && existingOrder.status === "PENDING") {
+      console.log(`🔄 Updating order ${existingOrder.id} with payment ID ${paymentIntent.id}`);
+
+      await db.order.update({
+        where: { id: existingOrder.id },
+        data: {
+          status: "PAID",
+          stripePaymentId: paymentIntent.id,
+        }
+      });
+
+      console.log(`✅ Order ${existingOrder.id} updated to PAID status`);
+    } else if (existingOrder) {
+      console.log(`⚠️ Order found but status is ${existingOrder.status}, skipping payment intent update`);
+    } else {
+      console.log(`⚠️ No order found for payment intent ${paymentIntent.id}`);
+    }
+
+  } catch (error) {
+    console.error("❌ Error processing payment intent succeeded:", error);
   }
 }
 
