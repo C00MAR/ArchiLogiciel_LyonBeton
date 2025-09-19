@@ -96,6 +96,11 @@ export default function Header() {
                             <Link href="/account" className="header__account inversed">
                                 <span>Mon Compte</span>
                             </Link>
+                            {session.user?.role === 'ADMIN' && process.env.NODE_ENV === 'development' && (
+                                <Link href="/api-docs" className="header__account" target="_blank">
+                                    <span>API Docs</span>
+                                </Link>
+                            )}
                             <LogoutButton className="header__account noBorder">
                                 Se déconnecter
                             </LogoutButton>

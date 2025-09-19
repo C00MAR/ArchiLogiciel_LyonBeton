@@ -1,0 +1,1061 @@
+openapi: 3.1.1
+info:
+  title: Archi Logiciel - Lyon Béton Marc et Brévin M2
+  description: |
+    doc API https://github.com/C00MAR/ArchiLogiciel_LyonBeton.
+
+    API endpoints :
+    - User auth & account management
+    - Product management
+    - Cart operations
+    - Order processing and tracking
+    - Admin operations
+    - Payment via Stripe
+
+    ## Authentication
+
+    API uses authentication via NextAuth
+
+    ### Authentication Methods:
+    1. **Session Cookie**: Automatic authentication via browser cookies
+    2. **Bearer Token**: API token for programmatic access
+
+    ## Error Handling
+
+    All errors follow a consistent format:
+    ```json
+    {
+      "error": "Error message",
+      "details": { ... }
+    }
+    ```
+
+  version: 1.0.0
+  contact:
+    name: Lyon Béton API Support
+    email: support@lyonbeton.com
+  license:
+    name: Private
+
+servers:
+  - url: http://localhost:3000
+    description: Development server
+
+tags:
+  - name: Authentication
+    description: User authentication and registration
+  - name: Products
+    description: Product catalog operations
+  - name: Cart
+    description: Shopping cart management
+  - name: Orders
+    description: Order processing and history
+  - name: Account
+    description: User account management
+  - name: Admin
+    description: Administrative operations
+  - name: Payments
+    description: Payment processing
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Bearer token authentication
+    SessionAuth:
+      type: apiKey
+      in: cookie
+      name: next-auth.session-token
+      description: Session-based authentication via cookies
+
+  schemas:
+    # Enums
+    Role:
+      type: string
+      enum: [USER, ADMIN, PREMIUM]
+
+    OrderStatus:
+      type: string
+      enum: [PENDING, PAID, PROCESSING, SHIPPED, DELIVERED, CANCELLED, REFUNDED]
+
+    # Core Models
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique user identifier
+        name:
+          type: string
+          description: User's full name
+        email:
+          type: string
+          format: email
+          description: User's email address
+        role:
+          $ref: '#/components/schemas/Role'
+        emailVerified:
+          type: boolean
+          description: Whether the email is verified
+        twoFactorEnabled:
+          type: boolean
+          description: Whether 2FA is enabled
+      required: [id, name, email, role, emailVerified]
+
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Product ID
+        title:
+          type: string
+          description: Product title
+        subtitle:
+          type: string
+          description: Product subtitle
+        description:
+          type: string
+          description: Product description
+        price:
+          type: integer
+          description: Product price in cents
+        imgNumber:
+          type: integer
+          description: Number of product images
+        identifier:
+          type: string
+          description: Unique product identifier
+        ref:
+          type: string
+          description: Product reference code
+        stripeProductId:
+          type: string
+          description: Stripe product ID
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        prices:
+          type: array
+          items:
+            $ref: '#/components/schemas/Price'
+      required: [id, title, subtitle, description, price, identifier, ref, imgNumber]
+
+    Price:
+      type: object
+      properties:
+        id:
+          type: integer
+        productId:
+          type: integer
+        stripePriceId:
+          type: string
+        amount:
+          type: integer
+          description: Price in cents
+        currency:
+          type: string
+          default: EUR
+        type:
+          type: string
+          default: one_time
+        interval:
+          type: string
+        isActive:
+          type: boolean
+        isDefault:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, productId, stripePriceId, amount, currency, isActive, isDefault]
+
+    CartItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        cartId:
+          type: integer
+        productId:
+          type: integer
+        quantity:
+          type: integer
+          minimum: 1
+        product:
+          $ref: '#/components/schemas/Product'
+      required: [id, cartId, productId, quantity]
+
+    Cart:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CartItem'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, items]
+
+    OrderItem:
+      type: object
+      properties:
+        id:
+          type: string
+        orderId:
+          type: string
+        productId:
+          type: integer
+        quantity:
+          type: integer
+        price:
+          type: integer
+          description: Price in cents at time of order
+        title:
+          type: string
+        subtitle:
+          type: string
+        product:
+          $ref: '#/components/schemas/Product'
+      required: [id, orderId, productId, quantity, price, title, subtitle]
+
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        stripeSessionId:
+          type: string
+        stripePaymentId:
+          type: string
+        total:
+          type: integer
+          description: Total amount in cents
+        status:
+          $ref: '#/components/schemas/OrderStatus'
+        customerEmail:
+          type: string
+          format: email
+        customerName:
+          type: string
+        shippingAddress:
+          type: object
+        billingAddress:
+          type: object
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, stripeSessionId, total, status, customerEmail, items]
+
+    AuditLog:
+      type: object
+      properties:
+        id:
+          type: string
+        action:
+          type: string
+        entity:
+          type: string
+        entityId:
+          type: string
+        adminId:
+          type: string
+        details:
+          type: object
+        createdAt:
+          type: string
+          format: date-time
+        admin:
+          type: object
+          properties:
+            name:
+              type: string
+            email:
+              type: string
+      required: [id, action, entity, entityId, adminId, createdAt]
+
+    # Request/Response Models
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        details:
+          type: object
+          description: Additional error details
+      required: [error]
+
+    SuccessResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        data:
+          type: object
+      required: [message]
+
+    PaginatedResponse:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+        totalPages:
+          type: integer
+        currentPage:
+          type: integer
+        limit:
+          type: integer
+      required: [totalCount, totalPages, currentPage, limit]
+
+    # Authentication Requests
+    RegisterRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+        name:
+          type: string
+          minLength: 2
+      required: [email, password, name]
+
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required: [email, password]
+
+    PasswordResetRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+      required: [email]
+
+    PasswordResetConfirm:
+      type: object
+      properties:
+        token:
+          type: string
+        password:
+          type: string
+          minLength: 8
+      required: [token, password]
+
+    # Cart Requests
+    AddToCartRequest:
+      type: object
+      properties:
+        identifier:
+          type: string
+        quantity:
+          type: integer
+          minimum: 1
+      required: [identifier, quantity]
+
+    UpdateCartItemRequest:
+      type: object
+      properties:
+        identifier:
+          type: string
+        quantity:
+          type: integer
+          minimum: 0
+      required: [identifier, quantity]
+
+    # Account Requests
+    UpdateProfileRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 2
+      required: [name]
+
+    ChangePasswordRequest:
+      type: object
+      properties:
+        currentPassword:
+          type: string
+        newPassword:
+          type: string
+          minLength: 8
+      required: [currentPassword, newPassword]
+
+    # Admin Requests
+    CreateProductRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+        subtitle:
+          type: string
+          minLength: 1
+        description:
+          type: string
+          minLength: 1
+        price:
+          type: integer
+          minimum: 1
+        ref:
+          type: string
+          minLength: 1
+        identifier:
+          type: string
+          minLength: 1
+        imgNumber:
+          type: integer
+          minimum: 1
+      required: [title, subtitle, description, price, ref, identifier, imgNumber]
+
+    UpdateProductRequest:
+      allOf:
+        - $ref: '#/components/schemas/CreateProductRequest'
+        - type: object
+          properties:
+            id:
+              type: integer
+          required: [id]
+
+    PromoteUserRequest:
+      type: object
+      properties:
+        userId:
+          type: string
+        role:
+          $ref: '#/components/schemas/Role'
+      required: [userId, role]
+
+    # Stripe Requests
+    StripeCheckoutRequest:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              productId:
+                type: integer
+              quantity:
+                type: integer
+                minimum: 1
+            required: [productId, quantity]
+          minItems: 1
+      required: [items]
+
+  responses:
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: "Données invalides"
+
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: "Non authentifié"
+
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: "Accès refusé"
+
+    NotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: "Ressource introuvable"
+
+    InternalServerError:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: "Erreur interne du serveur"
+
+paths:
+  # Authentication Endpoints
+  /api/trpc/auth.register:
+    post:
+      tags: [Authentication]
+      summary: Register new user
+      description: Create a new user account and send email verification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '200':
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Email already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/trpc/auth.requestEmailVerification:
+    post:
+      tags: [Authentication]
+      summary: Request email verification
+      description: Send email verification link to user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetRequest'
+      responses:
+        '200':
+          description: Verification email sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/trpc/auth.requestPasswordReset:
+    post:
+      tags: [Authentication]
+      summary: Request password reset
+      description: Send password reset email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetRequest'
+      responses:
+        '200':
+          description: Password reset email sent (or would be sent)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /api/trpc/auth.confirmPasswordReset:
+    post:
+      tags: [Authentication]
+      summary: Confirm password reset
+      description: Reset password using token from email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetConfirm'
+      responses:
+        '200':
+          description: Password reset successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  # Product Endpoints
+  /api/trpc/products.getAll:
+    get:
+      tags: [Products]
+      summary: Get all products
+      description: Retrieve all products with their prices
+      responses:
+        '200':
+          description: List of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/trpc/products.productByIdentifier:
+    get:
+      tags: [Products]
+      summary: Get product by identifier
+      description: Retrieve a specific product by its identifier
+      parameters:
+        - name: identifier
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Product identifier
+      responses:
+        '200':
+          description: Product found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                type: 'null'
+
+  # Cart Endpoints
+  /api/trpc/cart.getCurrent:
+    get:
+      tags: [Cart]
+      summary: Get current cart
+      description: Retrieve the current user's cart with items
+      security:
+        - SessionAuth: []
+      responses:
+        '200':
+          description: Current cart
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/trpc/cart.addToCart:
+    post:
+      tags: [Cart]
+      summary: Add item to cart
+      description: Add a product to the user's cart
+      security:
+        - SessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddToCartRequest'
+      responses:
+        '200':
+          description: Item added to cart
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cartId:
+                    type: integer
+                  item:
+                    $ref: '#/components/schemas/CartItem'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Product not found
+
+  /api/trpc/cart.updateItem:
+    put:
+      tags: [Cart]
+      summary: Update cart item quantity
+      description: Update the quantity of an item in the cart
+      security:
+        - SessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCartItemRequest'
+      responses:
+        '200':
+          description: Cart item updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Product not found
+
+  /api/trpc/cart.removeItem:
+    delete:
+      tags: [Cart]
+      summary: Remove item from cart
+      description: Remove an item from the cart
+      security:
+        - SessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                identifier:
+                  type: string
+              required: [identifier]
+      responses:
+        '200':
+          description: Item removed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # Account Endpoints
+  /api/trpc/account.getProfile:
+    get:
+      tags: [Account]
+      summary: Get user profile
+      description: Get current user's profile information
+      security:
+        - SessionAuth: []
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/trpc/account.updateProfile:
+    put:
+      tags: [Account]
+      summary: Update user profile
+      description: Update user profile information
+      security:
+        - SessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        '200':
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  user:
+                    $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/trpc/account.changePassword:
+    put:
+      tags: [Account]
+      summary: Change password
+      description: Change user password
+      security:
+        - SessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+      responses:
+        '200':
+          description: Password changed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # Orders Endpoints
+  /api/trpc/orders.getUserOrders:
+    get:
+      tags: [Orders]
+      summary: Get user orders
+      description: Get paginated list of user orders
+      security:
+        - SessionAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 10
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/OrderStatus'
+      responses:
+        '200':
+          description: User orders
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      orders:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Order'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/trpc/orders.getOrderById:
+    get:
+      tags: [Orders]
+      summary: Get order by ID
+      description: Get specific order details
+      security:
+        - SessionAuth: []
+      parameters:
+        - name: orderId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Order details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # Stripe Payment Endpoints
+  /api/stripe/checkout:
+    post:
+      tags: [Payments]
+      summary: Create Stripe checkout session
+      description: Create a Stripe checkout session for payment
+      security:
+        - SessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StripeCheckoutRequest'
+      responses:
+        '200':
+          description: Checkout session created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    format: uri
+                    description: Stripe checkout URL
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # Admin Endpoints
+  /api/trpc/admin.getAllUsers:
+    get:
+      tags: [Admin]
+      summary: Get all users (Admin)
+      description: Retrieve all users in the system (Admin only)
+      security:
+        - SessionAuth: []
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/trpc/admin.getAllProducts:
+    get:
+      tags: [Admin]
+      summary: Get all products (Admin)
+      description: Retrieve all products for admin management
+      security:
+        - SessionAuth: []
+      responses:
+        '200':
+          description: List of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/trpc/admin.createProduct:
+    post:
+      tags: [Admin]
+      summary: Create product (Admin)
+      description: Create a new product (Admin only)
+      security:
+        - SessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProductRequest'
+      responses:
+        '200':
+          description: Product created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  product:
+                    $ref: '#/components/schemas/Product'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: Product already exists
+
+  /api/trpc/admin.promoteUser:
+    put:
+      tags: [Admin]
+      summary: Update user role (Admin)
+      description: Change a user's role (Admin only)
+      security:
+        - SessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PromoteUserRequest'
+      responses:
+        '200':
+          description: User role updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  user:
+                    $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
