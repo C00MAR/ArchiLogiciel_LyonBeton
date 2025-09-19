@@ -215,9 +215,23 @@ export const adminRouter = createTRPCRouter({
         });
       }
 
-      await ctx.db.product.delete({
-        where: { id: input.id },
-      });
+      // 1) Remove the product from all carts and orders
+      await ctx.db.$transaction([
+        ctx.db.cartItem.deleteMany({ where: { productId: product.id } }),
+        ctx.db.orderItem.deleteMany({ where: { productId: product.id } }),
+      ]);
+
+      // 2) Remove product images from Cloudinary (products/{identifier}_{index})
+      try {
+        const publicIds = Array.from({ length: product.imgNumber }, (_, i) => `products/${product.identifier}_${i}`);
+        const { v2: cld } = await import('cloudinary');
+        await cld.api.delete_resources(publicIds, { resource_type: 'image' });
+      } catch (e) {
+        // Continue even if Cloudinary deletion fails
+      }
+
+      // 3) Finally delete the product
+      await ctx.db.product.delete({ where: { id: product.id } });
 
       await logAuditAction(
         ctx,

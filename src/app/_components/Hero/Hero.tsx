@@ -21,7 +21,6 @@ interface HeroProps {
 }
 
 export default function Hero({
-  videoSrc = '/assets/home_vid.webm',
   title = "LYON BETON",
   navigation = [
     { label: "BOUTIQUE", href: "/products" },
@@ -62,7 +61,7 @@ export default function Hero({
     return () => {
       video.removeEventListener('loadeddata', handleLoadedData);
     };
-  }, [videoSrc]);
+  }, []);
 
   return (
     <section className={styles.hero}>
@@ -71,14 +70,26 @@ export default function Hero({
           <video
             ref={videoRef}
             className={styles.video}
-            src={videoSrc}
             autoPlay
             muted
             loop
             playsInline
             preload="auto"
             data-loaded={isVideoLoaded}
-          />
+          >
+            <source
+              src="https://res.cloudinary.com/ddlod4evf/video/upload/f_webm,q_auto:best,vc_vp9,w_3840,h_2160,c_fill/home_vid_e6v05n.webm"
+              type="video/webm"
+            />
+
+            <source
+              src="https://res.cloudinary.com/ddlod4evf/video/upload/f_mp4,q_auto:best,vc_h264,w_3840,h_2160,c_fill/home_vid_e6v05n.mp4"
+              type="video/mp4"
+            />
+
+            Ton navigateur ne supporte pas la lecture vidéo.
+          </video>
+
         )}
 
         <div className={styles.overlay} />

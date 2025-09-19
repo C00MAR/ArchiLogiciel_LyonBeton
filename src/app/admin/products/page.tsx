@@ -87,8 +87,24 @@ export default function ProductManagement() {
     setImages(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (images && images.length > 0) {
+      const fd = new FormData();
+      fd.set('identifier', formData.identifier);
+      if (editingProduct) {
+        fd.set('replace', 'true');
+        fd.set('previousImgNumber', String(editingProduct.imgNumber || 0));
+      }
+      Array.from(images).forEach((file) => fd.append('files', file));
+      const res = await fetch('/api/admin/upload', { method: 'POST', body: fd });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        alert(`Upload échoué: ${err.error || res.statusText}`);
+        return;
+      }
+    }
 
     const imgNumber = images ? images.length : formData.imgNumber;
     const productData = {

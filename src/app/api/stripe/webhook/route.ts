@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { db } from "~/server/db";
-import { sendEmail, generateOrderConfirmationEmailTemplate, generatePaymentFailedEmailTemplate } from "~/lib/email";
+import { sendEmail, generateOrderConfirmationEmailTemplate, generatePaymentFailedEmailTemplate, generatePaymentConfirmationEmailTemplate } from "~/lib/email";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
@@ -119,6 +119,24 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
             html: emailTemplate.html,
           });
 
+          // Send payment confirmation email too
+          try {
+            const paymentTemplate = generatePaymentConfirmationEmailTemplate(
+              updatedOrder.id,
+              updatedOrder.total,
+              updatedOrder.customerName || "Client"
+            );
+
+            await sendEmail({
+              to: updatedOrder.customerEmail,
+              subject: `Paiement confirmé #${updatedOrder.id}`,
+              text: paymentTemplate.text,
+              html: paymentTemplate.html,
+            });
+          } catch (emailError) {
+            console.error("❌ Failed to send payment confirmation email:", emailError);
+          }
+
         } catch (emailError) {
           console.error("❌ Failed to send confirmation email:", emailError);
         }
@@ -233,6 +251,24 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
         html: emailTemplate.html,
       });
 
+      // Send payment confirmation email too
+      try {
+        const paymentTemplate = generatePaymentConfirmationEmailTemplate(
+          order.order.id,
+          order.order.total,
+          order.order.customerName || "Client"
+        );
+
+        await sendEmail({
+          to: order.order.customerEmail,
+          subject: `Paiement confirmé #${order.order.id}`,
+          text: paymentTemplate.text,
+          html: paymentTemplate.html,
+        });
+      } catch (emailError) {
+        console.error("❌ Failed to send payment confirmation email:", emailError);
+      }
+
     } catch (emailError) {
       console.error("❌ Failed to send confirmation email:", emailError);
     }
@@ -272,7 +308,7 @@ async function handleChargeSucceeded(charge: Stripe.Charge) {
 
 
     if (existingOrder && existingOrder.status === "PENDING") {
-      await db.order.update({
+      const updated = await db.order.update({
         where: { id: existingOrder.id },
         data: {
           status: "PAID",
@@ -281,6 +317,24 @@ async function handleChargeSucceeded(charge: Stripe.Charge) {
       });
 
       console.log(`✅ Order ${existingOrder.id} updated to PAID via charge event`);
+
+      try {
+        const paymentTemplate = generatePaymentConfirmationEmailTemplate(
+          updated.id,
+          updated.total,
+          updated.customerName || "Client"
+        );
+
+        await sendEmail({
+          to: updated.customerEmail,
+          subject: `Paiement confirmé #${updated.id}`,
+          text: paymentTemplate.text,
+          html: paymentTemplate.html,
+        });
+      } catch (emailError) {
+        console.error("❌ Failed to send payment confirmation email:", emailError);
+      }
+
     } else if (existingOrder) {
       console.log(`⚠️ Order found via charge but status is ${existingOrder.status}, skipping`);
     } else {
@@ -308,7 +362,7 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
     if (existingOrder && existingOrder.status === "PENDING") {
       console.log(`🔄 Updating order ${existingOrder.id} with payment ID ${paymentIntent.id}`);
 
-      await db.order.update({
+      const updated = await db.order.update({
         where: { id: existingOrder.id },
         data: {
           status: "PAID",
@@ -317,6 +371,24 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
       });
 
       console.log(`✅ Order ${existingOrder.id} updated to PAID status`);
+
+      try {
+        const paymentTemplate = generatePaymentConfirmationEmailTemplate(
+          updated.id,
+          updated.total,
+          updated.customerName || "Client"
+        );
+
+        await sendEmail({
+          to: updated.customerEmail,
+          subject: `Paiement confirmé #${updated.id}`,
+          text: paymentTemplate.text,
+          html: paymentTemplate.html,
+        });
+      } catch (emailError) {
+        console.error("❌ Failed to send payment confirmation email:", emailError);
+      }
+
     } else if (existingOrder) {
       console.log(`⚠️ Order found but status is ${existingOrder.status}, skipping payment intent update`);
     } else {
