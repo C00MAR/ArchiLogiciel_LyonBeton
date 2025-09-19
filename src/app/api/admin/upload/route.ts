@@ -18,6 +18,18 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    const replace = String(formData.get('replace') || '').toLowerCase() === 'true';
+    const previousImgNumberRaw = formData.get('previousImgNumber');
+    const previousImgNumber = previousImgNumberRaw ? Number(previousImgNumberRaw) : 0;
+
+    if (replace && previousImgNumber > 0) {
+      try {
+        const publicIds = Array.from({ length: previousImgNumber }, (_, i) => `products/${identifier}_${i}`);
+        await cloudinary.api.delete_resources(publicIds, { resource_type: 'image' });
+      } catch (e) {
+      }
+    }
+
     if (files.length === 0) {
       return NextResponse.json({ error: 'No files provided' }, { status: 400 });
     }

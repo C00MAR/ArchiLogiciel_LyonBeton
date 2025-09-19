@@ -93,6 +93,10 @@ export default function ProductManagement() {
     if (images && images.length > 0) {
       const fd = new FormData();
       fd.set('identifier', formData.identifier);
+      if (editingProduct) {
+        fd.set('replace', 'true');
+        fd.set('previousImgNumber', String(editingProduct.imgNumber || 0));
+      }
       Array.from(images).forEach((file) => fd.append('files', file));
       const res = await fetch('/api/admin/upload', { method: 'POST', body: fd });
       if (!res.ok) {

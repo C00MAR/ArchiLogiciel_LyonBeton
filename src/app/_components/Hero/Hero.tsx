@@ -21,7 +21,6 @@ interface HeroProps {
 }
 
 export default function Hero({
-  videoSrc = '/assets/home_vid.webm',
   title = "LYON BETON",
   navigation = [
     { label: "BOUTIQUE", href: "/products" },
@@ -62,7 +61,7 @@ export default function Hero({
     return () => {
       video.removeEventListener('loadeddata', handleLoadedData);
     };
-  }, [videoSrc]);
+  }, []);
 
   return (
     <section className={styles.hero}>
@@ -71,7 +70,6 @@ export default function Hero({
           <video
             ref={videoRef}
             className={styles.video}
-            src={videoSrc}
             autoPlay
             muted
             loop
