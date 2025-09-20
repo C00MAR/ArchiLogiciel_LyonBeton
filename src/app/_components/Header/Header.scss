@@ -39,12 +39,13 @@
 
         &.noBorder {
             border: none;
+            border-left: 1px solid $secondary-color;
         }
 
         &.inversed {
             background: $secondary-color;
             color: $primary-color;
-            border-right: 1px solid $secondary-color;
+            border-right: none;
 
             &:hover {
                 background: $primary-color;

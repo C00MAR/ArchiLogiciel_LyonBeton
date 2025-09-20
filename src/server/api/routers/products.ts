@@ -16,6 +16,20 @@ export const productsRouter = createTRPCRouter({
     return products;
   }),
 
+  getLastProducts: publicProcedure.query(async ({ ctx }) => {
+    const products = await ctx.db.product.findMany({
+      include: {
+        prices: {
+          where: { isActive: true },
+          orderBy: { isDefault: "desc" },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 4,
+    });
+    return products;
+  }),
+
   productByIdentifier: publicProcedure
     .input(z.object({ identifier: z.string().min(1) }))
     .query(async ({ ctx, input }) => {
@@ -23,7 +37,6 @@ export const productsRouter = createTRPCRouter({
         where: { identifier: input.identifier },
         include: {
           prices: {
-            where: { isActive: true },
             orderBy: { isDefault: "desc" },
           },
         },

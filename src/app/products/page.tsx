@@ -11,7 +11,7 @@ export default async function ProductsPage() {
     const productsList: ProductType[] = productsData ?? [];
 
     return (
-        <div className="products-page" style={{marginTop: '50px'}}>
+        <div className="products-page" style={{marginTop: '96px'}}>
             <CardList productList={productsList} />
         </div>
     );

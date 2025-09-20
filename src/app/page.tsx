@@ -7,7 +7,7 @@ import type { ProductType } from "./types/Products";
 import TestImage from "./_components/TestImage/CloudImage";
 
 async function fetchAllProducts() {
-    return api.products.getAll();
+    return api.products.getLastProducts();
 }
 
 export default async function Home() {
@@ -26,7 +26,7 @@ export default async function Home() {
             <CardList
                 productList={productsList}
             />
-            <TestImage/>
+            <TestImage />
         </HydrateClient>
     );
 }

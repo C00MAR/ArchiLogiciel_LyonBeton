@@ -1,0 +1,138 @@
+@import "../../../styles/variables";
+
+.register {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100vh;
+    width: 100%;
+    background-size: 70%;
+    background-repeat: no-repeat;
+    background-position: right;
+    background-image: url("https://res.cloudinary.com/ddlod4evf/image/upload/login-background_qa7sxp.webp");
+    background-color: $primary-color;
+
+    &-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-left: 10%;
+        width: 40%;
+    }
+
+    &-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: $primary-color;
+        border: 1px solid $secondary-color;
+        padding: 24px;
+        text-transform: uppercase;
+        gap: 24px;
+        width: 100%;
+        max-width: 450px;
+
+        h2 {
+            font-size: 24px;
+            color: $secondary-color;
+            margin: 0;
+        }
+
+        p {
+            font-size: 8px;
+        }
+    }
+
+    &-form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        gap: 12px;
+
+        &__group {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+
+            input {
+                padding: 8px;
+                border: none;
+                border-bottom: 1px solid $secondary-color;
+                outline: none;
+                background: transparent;
+                font-size: 12px;
+
+                &:-internal-autofill-selected {
+                    background-color: transparent !important;
+                    -webkit-box-shadow: 0 0 0px 1000px $primary-color inset !important;
+                    box-shadow: 0 0 0px 1000px $primary-color inset !important;
+                    -webkit-text-fill-color: $secondary-color !important;
+                }
+
+            }
+        }
+
+        &__submit {
+            width: auto;
+            padding: 16px 24px;
+            margin-top: 12px;
+            border: 1px solid $secondary-color;
+            background-color: $secondary-color;
+            color: $primary-color;
+            font-size: 8px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+
+            &:hover {
+                background-color: transparent;
+                color: $secondary-color;
+            }
+        }
+    }
+
+    &-oauth {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        gap: 12px;
+
+        &__button {
+            width: auto;
+            padding: 16px 24px;
+            border: 1px solid $secondary-color;
+            background-color: transparent;
+            color: $secondary-color;
+            font-size: 8px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+
+            &:hover {
+                background-color: $secondary-color;
+                color: $primary-color;
+            }
+        }
+    }
+
+    &-links {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        text-transform: none;
+        font-size: 12px;
+
+        a {
+            color: $secondary-color;
+            text-decoration: underline;
+
+
+            &:hover {
+                text-decoration: none;
+            }
+        }
+    }
+}
