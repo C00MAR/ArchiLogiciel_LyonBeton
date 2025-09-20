@@ -18,8 +18,9 @@ export async function GET() {
       { status: 200 }
     );
   } catch (error) {
+    const errorMessage = (error as Error).message;
     return NextResponse.json(
-      { error: 'Erreur lors de l\'envoi de l\'email de test', details: error.message },
+      { error: 'Erreur lors de l\'envoi de l\'email de test', details: errorMessage },
       { status: 500 }
     );
   }

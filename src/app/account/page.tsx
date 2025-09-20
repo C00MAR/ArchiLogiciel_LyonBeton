@@ -18,25 +18,24 @@ export default function AccountPage() {
   };
 
   const positionTabContainer = () => {
-    const headerActionsElement = document.querySelector('.header__actions');
-    const tabContainerElement = document.querySelector('.account__tabContainer');
+    const headerActionsElement = document.querySelector('.header__actions') as HTMLElement | null;
+    const tabContainerElement = document.querySelector('.account__tabContainer') as HTMLElement | null;
 
     if (headerActionsElement && tabContainerElement) {
       let bottomLeftX = 0;
       let bottomLeftY = 0;
       const headerActionsRect = headerActionsElement.getBoundingClientRect();
-      const tabContainerRect = tabContainerElement.getBoundingClientRect();
 
-      tabContainerRect.width = headerActionsRect.width;
-
-      bottomLeftX = headerActionsRect.left + headerActionsRect.width - tabContainerRect.width;
-      bottomLeftY = headerActionsRect.top + headerActionsRect.height - tabContainerRect.height;
+      bottomLeftX = headerActionsRect.left;
+      bottomLeftY = headerActionsRect.bottom;
 
       tabContainerElement.style.position = 'absolute';
       tabContainerElement.style.left = `${bottomLeftX}px`;
       tabContainerElement.style.top = `${bottomLeftY}px`;
-    }
-  };
+      tabContainerElement.style.width = `${headerActionsRect.width}px`;
+    };
+  }
+
 
   useEffect(() => {
     const timer = setTimeout(() => {

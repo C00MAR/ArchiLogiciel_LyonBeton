@@ -52,9 +52,9 @@ export async function POST(req: NextRequest) {
       const stripePrice = product.prices[0];
 
       const isRealStripePrice = stripePrice?.stripePriceId?.startsWith('price_') &&
-                               !stripePrice.stripePriceId.includes('_default');
+        !stripePrice.stripePriceId.includes('_default');
 
-      if (isRealStripePrice) {
+      if (isRealStripePrice && stripePrice) {
         lineItems.push({
           price: stripePrice.stripePriceId,
           quantity: item.quantity,
