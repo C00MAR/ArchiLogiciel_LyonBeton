@@ -82,6 +82,32 @@
                     background-color: $secondary-color;
                     color: $primary-color;
                     transition: all $transition-base;
+                    text-decoration: none;
+                    text-align: center;
+                    display: block;
+
+                    &:hover {
+                        background-color: $primary-color;
+                        color: $secondary-color;
+                    }
+
+                    &:disabled {
+                        opacity: 0.6;
+                        cursor: not-allowed;
+                    }
+                }
+
+                #{$namespace}__loginButton {
+                    padding: $spacer-4;
+                    border: none;
+                    background-color: transparent;
+                    cursor: pointer;
+                    background-color: $secondary-color;
+                    color: $primary-color;
+                    transition: all $transition-base;
+                    text-decoration: none;
+                    text-align: center;
+                    display: block;
 
                     &:hover {
                         background-color: $primary-color;

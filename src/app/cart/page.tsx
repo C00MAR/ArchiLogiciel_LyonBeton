@@ -201,50 +201,63 @@ export default function CartPage() {
     return (
         <div className={styles.cartPage}>
             <h1 className={styles.cartPage__title}>Votre panier</h1>
-            {guestItems.length === 0 ? (
-                <div className={styles.cartPage__emptyState}>
-                    <p>Votre panier est vide.</p>
+            <div className={styles.cartPage__asideContainer}>
+                {guestItems.length === 0 ? (
+                    <div className={styles.cartPage__emptyState}>
+                        <p>Votre panier est vide.</p>
+                        <Link href="/" className={styles.cartPage__emptyState__link}>Retour accueil</Link>
+                    </div>
+                ) : (
+                    <div className={styles.cartPage__items}>
+                        {guestItems.map((it) => (
+                            <div key={it.product.identifier} className={styles.cartPage__item}>
+                                <ProductLine
+                                    product={{
+                                        ...it.product,
+                                        stripeProductId: it.product.stripeProductId ?? undefined,
+                                        prices: it.product.prices?.map(p => ({
+                                            ...p,
+                                            interval: p.interval ?? undefined
+                                        }))
+                                    }}
+                                    quantity={it.quantity}
+                                    onQuantityChange={(newQuantity) =>
+                                        setGuestQty(it.product.identifier, newQuantity)
+                                    }
+                                    onRemove={() => setGuestQty(it.product.identifier, 0)}
+                                    showControls={true}
+                                    showImage={true}
+                                />
+                            </div>
+                        ))}
+                    </div>
+                )}
+                <div className={styles.cartPage__price}>
+                    <div className={styles.cartPage__total}>Total: {displayGuestTotal} €</div>
+                    <div className={styles.cartPage__actions}>
+                        {guestItems.length === 0 ? (
+                            <Link href="/" className={styles.cartPage__checkoutButton}>
+                                Retour accueil
+                            </Link>
+                        ) : (
+                            <>
+                                <Link href="/login" className={styles.cartPage__checkoutButton}>
+                                    Se connecter pour payer
+                                </Link>
+                                <button
+                                    onClick={() => {
+                                        const items = guestItems.map(it => ({ productId: it.product.id, quantity: it.quantity }));
+                                        handleCheckout(items);
+                                    }}
+                                    disabled={isCheckingOut}
+                                    className={styles.cartPage__checkoutButton}
+                                >
+                                    {isCheckingOut ? 'Redirection...' : 'Payer sans compte'}
+                                </button>
+                            </>
+                        )}
+                    </div>
                 </div>
-            ) : (
-                <div className={styles.cartPage__items}>
-                    {guestItems.map((it) => (
-                        <div key={it.product.identifier} className={styles.cartPage__item}>
-                            <ProductLine
-                                product={{
-                                    ...it.product,
-                                    stripeProductId: it.product.stripeProductId ?? undefined,
-                                    prices: it.product.prices?.map(p => ({
-                                        ...p,
-                                        interval: p.interval ?? undefined
-                                    }))
-                                }}
-                                quantity={it.quantity}
-                                onQuantityChange={(newQuantity) =>
-                                    setGuestQty(it.product.identifier, newQuantity)
-                                }
-                                onRemove={() => setGuestQty(it.product.identifier, 0)}
-                                showControls={true}
-                                showImage={true}
-                            />
-                        </div>
-                    ))}
-                </div>
-            )}
-            <div className={styles.cartPage__total}>Total: {displayGuestTotal} €</div>
-            <div className={styles.cartPage__actions}>
-                <Link href="/login" className={styles.cartPage__loginButton}>
-                    Se connecter pour payer
-                </Link>
-                <button
-                    onClick={() => {
-                        const items = guestItems.map(it => ({ productId: it.product.id, quantity: it.quantity }));
-                        handleCheckout(items);
-                    }}
-                    disabled={isCheckingOut || guestItems.length === 0}
-                    className={styles.cartPage__checkoutButton}
-                >
-                    {isCheckingOut ? 'Redirection...' : 'Payer sans compte'}
-                </button>
             </div>
         </div>
     );
