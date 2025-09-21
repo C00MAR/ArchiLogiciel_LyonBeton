@@ -1,5 +1,4 @@
 import NextAuth, { type NextAuthConfig } from 'next-auth';
-import type { Adapter } from 'next-auth/adapters';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import Credentials from 'next-auth/providers/credentials';
 import Google from 'next-auth/providers/google';
@@ -7,11 +6,12 @@ import GitHub from 'next-auth/providers/github';
 import { compare } from 'bcryptjs';
 import { prisma } from './prisma';
 
+
 export const authOptions: NextAuthConfig = {
-  adapter: PrismaAdapter(prisma) as Adapter,
+  adapter: PrismaAdapter(prisma),
   events: {
     async createUser({ user }) {
-      if (user.email && !user.emailVerified) {
+      if (user.email && !(user as any).emailVerified) {
         await prisma.user.update({
           where: { id: user.id },
           data: { emailVerified: new Date() },
@@ -49,7 +49,7 @@ export const authOptions: NextAuthConfig = {
       async authorize(credentials) {
         if (credentials?.userId && credentials?.twoFactorVerified === 'true') {
           const user = await prisma.user.findUnique({
-            where: { id: credentials.userId },
+            where: { id: credentials.userId as string },
             select: {
               id: true,
               email: true,
@@ -78,7 +78,7 @@ export const authOptions: NextAuthConfig = {
         }
 
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
+          where: { email: credentials.email as string },
           select: {
             id: true,
             email: true,
@@ -98,7 +98,7 @@ export const authOptions: NextAuthConfig = {
           throw new Error('Email non vérifié. Vérifiez votre boîte mail.');
         }
 
-        const isPasswordValid = await compare(credentials.password, user.passwordHash);
+        const isPasswordValid = await compare(credentials.password as string, user.passwordHash);
 
         if (!isPasswordValid) {
           return null;
@@ -165,10 +165,10 @@ export const authOptions: NextAuthConfig = {
     },
     async jwt({ token, user }) {
       if (user) {
-        token.role = user.role;
-        token.emailVerified = user.emailVerified;
+        token.role = (user as any).role;
+        token.emailVerified = (user as any).emailVerified;
         if ('twoFactorRequired' in user) {
-          token.twoFactorRequired = user.twoFactorRequired;
+          token.twoFactorRequired = (user as any).twoFactorRequired;
         }
       }
 
@@ -190,10 +190,10 @@ export const authOptions: NextAuthConfig = {
     async session({ session, token }) {
       if (session.user && token.sub) {
         session.user.id = token.sub;
-        session.user.role = token.role;
-        session.user.emailVerified = token.emailVerified;
-        session.user.twoFactorRequired = token.twoFactorRequired;
-        session.user.twoFactorEnabled = token.twoFactorEnabled;
+        (session.user as any).role = token.role ?? undefined;
+        (session.user as any).emailVerified = token.emailVerified ?? null;
+        (session.user as any).twoFactorRequired = token.twoFactorRequired ?? undefined;
+        (session.user as any).twoFactorEnabled = token.twoFactorEnabled ?? undefined;
       }
       return session;
     },
