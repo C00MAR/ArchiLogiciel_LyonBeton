@@ -4,8 +4,8 @@ import { TRPCError } from "@trpc/server";
 import {
   createTRPCRouter,
   adminProcedure,
-  type createTRPCContext,
-} from "~/server/api/trpc";
+  createTRPCContext,
+} from "../trpc";
 
 const promoteUserSchema = z.object({
   userId: z.string().min(1, 'User ID requis'),
@@ -40,13 +40,20 @@ async function logAuditAction(
   entityId: string,
   details?: Record<string, unknown>
 ) {
+  if (!ctx.session?.user?.id) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "Session utilisateur requise pour l'audit",
+    });
+  }
+
   await ctx.db.auditLog.create({
     data: {
       action,
       entity,
       entityId,
       adminId: ctx.session.user.id,
-      details: details ?? {},
+      details: details ? JSON.parse(JSON.stringify(details)) as object : {},
     },
   });
 }
@@ -220,6 +227,7 @@ export const adminRouter = createTRPCRouter({
       await ctx.db.$transaction([
         ctx.db.cartItem.deleteMany({ where: { productId: product.id } }),
         ctx.db.orderItem.deleteMany({ where: { productId: product.id } }),
+        ctx.db.price.deleteMany({ where: { productId: product.id } }),
       ]);
 
       // 2) Remove product images from Cloudinary (products/{identifier}_{index})

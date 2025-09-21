@@ -1,5 +1,24 @@
 import '@testing-library/jest-dom';
-import { vi } from 'vitest';
+import { vi, beforeEach } from 'vitest';
+
+interface MockRouter {
+  push: ReturnType<typeof vi.fn>;
+  replace: ReturnType<typeof vi.fn>;
+  back: ReturnType<typeof vi.fn>;
+  forward: ReturnType<typeof vi.fn>;
+  refresh: ReturnType<typeof vi.fn>;
+  prefetch: ReturnType<typeof vi.fn>;
+}
+
+interface MockSession {
+  user: { id: string; email: string; name: string; role: string };
+  expires: string;
+}
+
+declare global {
+  var mockRouter: MockRouter;
+  var mockSession: MockSession;
+}
 
 process.env.NEXTAUTH_SECRET = 'test-secret';
 process.env.NEXTAUTH_URL = 'http://localhost:3000';

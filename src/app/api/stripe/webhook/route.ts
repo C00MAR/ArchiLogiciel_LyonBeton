@@ -109,7 +109,7 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
                 price: item.price,
               }))
             },
-            updatedOrder.customerName || "Client"
+            updatedOrder.customerName ?? "Client"
           );
 
           await sendEmail({
@@ -124,7 +124,7 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
             const paymentTemplate = generatePaymentConfirmationEmailTemplate(
               updatedOrder.id,
               updatedOrder.total,
-              updatedOrder.customerName || "Client"
+              updatedOrder.customerName ?? "Client"
             );
 
             await sendEmail({
@@ -157,11 +157,8 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
       return;
     }
 
-    const sessionWithLineItems = await stripe.checkout.sessions.retrieve(session.id, {
-      expand: ['line_items.data.price.product']
-    });
 
-    const total = session.amount_total || 0;
+    const total = session.amount_total ?? 0;
 
     let paymentIntentId = null;
     if (typeof session.payment_intent === 'string') {
@@ -175,8 +172,8 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
       ...(paymentIntentId && { stripePaymentId: paymentIntentId }),
       total,
       status: "PAID" as const,
-      customerEmail: session.customer_details?.email || session.customer_email || "",
-      customerName: session.customer_details?.name || "Client",
+      customerEmail: session.customer_details?.email ?? session.customer_email ?? "",
+      customerName: session.customer_details?.name ?? "Client",
       userId: null,
     };
 
@@ -213,13 +210,13 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
         const itemData = {
           orderId: newOrder.id,
           productId: product.id,
-          quantity: lineItem.quantity || 1,
-          price: lineItem.price?.unit_amount || 0,
+          quantity: lineItem.quantity ?? 1,
+          price: lineItem.price?.unit_amount ?? 0,
           title: product.title,
           subtitle: product.subtitle,
         };
 
-        const orderItem = await tx.orderItem.create({
+        await tx.orderItem.create({
           data: itemData
         });
 
@@ -241,7 +238,7 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
           total: order.order.total,
           items: order.items
         },
-        order.order.customerName || "Client"
+        order.order.customerName ?? "Client"
       );
 
       await sendEmail({
@@ -256,7 +253,7 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
         const paymentTemplate = generatePaymentConfirmationEmailTemplate(
           order.order.id,
           order.order.total,
-          order.order.customerName || "Client"
+          order.order.customerName ?? "Client"
         );
 
         await sendEmail({
@@ -291,11 +288,6 @@ async function handleChargeSucceeded(charge: Stripe.Charge) {
       : charge.payment_intent.id;
 
 
-    const allOrders = await db.order.findMany({
-      select: { id: true, stripeSessionId: true, stripePaymentId: true, status: true },
-      orderBy: { createdAt: 'desc' },
-      take: 5
-    });
 
     const existingOrder = await db.order.findFirst({
       where: {
@@ -322,7 +314,7 @@ async function handleChargeSucceeded(charge: Stripe.Charge) {
         const paymentTemplate = generatePaymentConfirmationEmailTemplate(
           updated.id,
           updated.total,
-          updated.customerName || "Client"
+          updated.customerName ?? "Client"
         );
 
         await sendEmail({
@@ -376,7 +368,7 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
         const paymentTemplate = generatePaymentConfirmationEmailTemplate(
           updated.id,
           updated.total,
-          updated.customerName || "Client"
+          updated.customerName ?? "Client"
         );
 
         await sendEmail({
@@ -404,13 +396,13 @@ async function handlePaymentIntentFailed(paymentIntent: Stripe.PaymentIntent) {
   try {
     console.log(`❌ Processing failed payment intent: ${paymentIntent.id}`);
 
-    const customerEmail = paymentIntent.receipt_email ||
-                         paymentIntent.shipping?.name ||
+    const customerEmail = paymentIntent.receipt_email ??
+                         paymentIntent.shipping?.name ??
                          "client@example.com";
 
-    const customerName = paymentIntent.shipping?.name || "Client";
+    const customerName = paymentIntent.shipping?.name ?? "Client";
 
-    console.error(`💳 Payment failed for ${customerEmail}: ${paymentIntent.last_payment_error?.message || 'Unknown error'}`);
+    console.error(`💳 Payment failed for ${customerEmail}: ${paymentIntent.last_payment_error?.message ?? 'Unknown error'}`);
 
     try {
       const emailTemplate = generatePaymentFailedEmailTemplate(
