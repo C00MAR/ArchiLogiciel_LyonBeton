@@ -58,17 +58,19 @@ export function zodToOpenAPI(schema: z.ZodType): OpenAPISchema {
   }
 
   if (schema instanceof z.ZodArray) {
+    const def = zodType as z.ZodArrayDef;
     return {
       type: 'array',
-      items: zodToOpenAPI(zodType.type)
+      items: zodToOpenAPI(def.type)
     };
   }
 
   if (schema instanceof z.ZodObject) {
+    const def = zodType as z.ZodObjectDef;
     const properties: Record<string, OpenAPISchema> = {};
     const required: string[] = [];
 
-    for (const [key, value] of Object.entries(zodType.shape())) {
+    for (const [key, value] of Object.entries(def.shape())) {
       properties[key] = zodToOpenAPI(value as z.ZodType);
 
       if (!(value instanceof z.ZodOptional)) {
@@ -84,26 +86,30 @@ export function zodToOpenAPI(schema: z.ZodType): OpenAPISchema {
   }
 
   if (schema instanceof z.ZodEnum) {
+    const def = zodType as z.ZodEnumDef;
     return {
       type: 'string',
-      enum: zodType.values
+      enum: [...def.values]
     };
   }
 
   if (schema instanceof z.ZodOptional) {
-    return zodToOpenAPI(zodType.innerType);
+    const def = zodType as z.ZodOptionalDef;
+    return zodToOpenAPI(def.innerType);
   }
 
   if (schema instanceof z.ZodUnion) {
+    const def = zodType as z.ZodUnionDef;
     return {
-      oneOf: zodType.options.map((option: z.ZodType) => zodToOpenAPI(option))
+      oneOf: def.options.map((option: z.ZodType) => zodToOpenAPI(option))
     };
   }
 
   if (schema instanceof z.ZodRecord) {
+    const def = zodType as z.ZodRecordDef;
     return {
       type: 'object',
-      additionalProperties: zodType.valueType ? zodToOpenAPI(zodType.valueType) : true
+      additionalProperties: def.valueType ? zodToOpenAPI(def.valueType) : true
     };
   }
 
