@@ -40,7 +40,7 @@ describe('AdminTab', () => {
     render(<AdminTab />);
 
     expect(screen.getByText('Administration')).toBeInTheDocument();
-    expect(screen.getByText('Accès au panel d\'administration')).toBeInTheDocument();
+    expect(screen.getByText('Accès au panel d administration')).toBeInTheDocument();
     expect(screen.getByText('Accéder au tableau de bord admin')).toBeInTheDocument();
     expect(screen.getByText('Gestion des utilisateurs')).toBeInTheDocument();
     expect(screen.getByText('Gestion des produits')).toBeInTheDocument();
