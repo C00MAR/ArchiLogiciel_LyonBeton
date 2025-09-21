@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
+import styles from './Success.module.scss';
 
 export default function CheckoutSuccessPage() {
     const searchParams = useSearchParams();
@@ -15,48 +16,32 @@ export default function CheckoutSuccessPage() {
     }, []);
 
     return (
-        <div style={{ padding: '40px 20px', textAlign: 'center', maxWidth: '600px', margin: '0 auto' }}>
-            <h1 style={{ color: '#28a745', marginBottom: '20px' }}>
-                ✅ Paiement réussi !
-            </h1>
+        <div className={styles.successPage}>
+            <div className={styles.successPage__container}>
+                <h1 className={styles.successPage__title}>
+                    Paiement réussi !
+                </h1>
 
-            <p style={{ fontSize: '18px', marginBottom: '30px' }}>
-                Votre commande a été confirmée et sera traitée dans les plus brefs délais.
-            </p>
+                {sessionId && (
+                    <p className={styles.successPage__sessionId}>
+                        Numéro de session/payment : {sessionId}
+                    </p>
+                )}
 
-            {sessionId && (
-                <p style={{ fontSize: '14px', color: '#666', marginBottom: '30px' }}>
-                    Numéro de session : {sessionId}
+                <div className={styles.successPage__actions}>
+                    <Link href="/" className={styles.successPage__button}>
+                        Retour accueil
+                    </Link>
+
+                    <Link href="/products" className={styles.successPage__button}>
+                        Continuer mes achats
+                    </Link>
+                </div>
+
+                <p className={styles.successPage__emailInfo}>
+                    Mail de confirmation envoyé.
                 </p>
-            )}
-
-            <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                <Link href="/" style={{
-                    padding: '12px 24px',
-                    backgroundColor: '#007cba',
-                    color: 'white',
-                    textDecoration: 'none',
-                    borderRadius: '4px',
-                    display: 'inline-block'
-                }}>
-                    Retour à l accueil
-                </Link>
-
-                <Link href="/products" style={{
-                    padding: '12px 24px',
-                    backgroundColor: '#28a745',
-                    color: 'white',
-                    textDecoration: 'none',
-                    borderRadius: '4px',
-                    display: 'inline-block'
-                }}>
-                    Continuer mes achats
-                </Link>
             </div>
-
-            <p style={{ fontSize: '14px', color: '#666', marginTop: '40px' }}>
-                Un email de confirmation vous sera envoyé prochainement.
-            </p>
         </div>
     );
 }

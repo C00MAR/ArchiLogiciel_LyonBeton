@@ -1,0 +1,95 @@
+@import '../../styles/variables';
+
+.--lastone {
+    padding: $spacer-24;
+}
+
+.cartPage {
+    $namespace: &;
+
+    height: 100vh;
+    margin: 0 auto;
+    padding: $spacer-32 0 0 0;
+    
+    &__title {
+        margin-bottom: $spacer-6;
+        padding: 0 $spacer-24;
+    }
+
+    &__asideContainer {
+        display: flex;
+        justify-content: space-between;
+        margin: 0 $spacer-24;
+        gap: $spacer-32;
+        
+        #{$namespace}__items {
+            width: 100%;
+            
+            #{$namespace}__item {
+                
+                &:last-of-type {
+                    border-bottom: 1px solid $secondary-color;
+                }
+            }
+        
+        }
+
+        #{$namespace}__emptyState {
+            display: flex;
+            flex-direction: column;
+            gap: $spacer-4;
+            height: 100%;
+            padding: $spacer-4 0;
+
+            &__link {
+                border: none;
+                cursor: pointer;
+                transition: all $transition-base;
+
+                &:hover {
+                    text-decoration: underline;
+                }
+            }
+        }
+
+        #{$namespace}__price {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: flex-end;
+            width: 300px;
+            border: 1px solid $secondary-color;
+            gap: $spacer-2;
+            
+            #{$namespace}__total {
+                padding: $spacer-2 $spacer-4;
+                font-weight: 700;
+                font-size: 1rem;
+            }
+
+            #{$namespace}__actions {
+                display: flex;
+                flex-direction: column;
+                gap: $spacer-2;
+                width: 100%;
+                border-top: 1px solid $secondary-color;
+                
+                #{$namespace}__checkoutButton {
+                    padding: $spacer-4;
+                    border: none;
+                    background-color: transparent;
+                    cursor: pointer;
+                    background-color: $secondary-color;
+                    color: $primary-color;
+                    transition: all $transition-base;
+
+                    &:hover {
+                        background-color: $primary-color;
+                        color: $secondary-color;
+                    }
+                }
+            }
+            
+        }
+    }
+}

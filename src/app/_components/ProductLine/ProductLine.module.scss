@@ -1,0 +1,123 @@
+@import '../../../styles/variables';
+
+.productLine {
+    $namespace: &;
+
+    display: flex;
+    border: 1px solid $secondary-color;
+    border-bottom: none;
+
+    &__image {
+        width: 20vw;
+        height: 25vh;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: $tertiary-color;
+        overflow: hidden;
+        border-right: 1px solid $secondary-color;
+        
+        #{$namespace}__img {
+            max-width: 100%;
+            object-fit: contain;
+            transition: transform 0.3s ease-in-out;
+            
+            &:hover {
+                transform: scale(1.05);
+            }
+        }
+    }
+
+    &__info {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+
+        #{$namespace}__details {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: $spacer-2;
+            
+            #{$namespace}__text {
+                #{$namespace}__title {
+                    text-transform: uppercase;
+                    font-weight: 700;
+                    font-size: 1.1rem;
+                    margin-bottom: 0;
+                    transition: all $transition-base;
+
+                    &:hover {
+                        text-decoration: underline;
+                    }
+                }
+                
+                #{$namespace}__subtitle {
+                    font-family: 'Sk-Modernist Light', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    font-size: 0.9rem; 
+                }
+            }
+            
+            #{$namespace}__totalPrice {
+                font-weight: 700;
+                font-size: 0.7rem;
+            }
+        }
+    }
+
+    &__controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 30%;
+        
+        #{$namespace}__quantity {
+            display: flex;
+            align-items: center;
+            border-top: 1px solid $secondary-color;
+            height: 100%;
+            
+            #{$namespace}__quantityButton {
+                border-right: 1px solid $secondary-color !important;
+                border: none;
+                background: none;
+                cursor: pointer;
+                height: 100%;
+                width: 50px;
+                transition: all $transition-base;
+                
+                &:hover {
+                    background-color: $secondary-color;
+                    color: $primary-color;
+                }
+            }
+            
+            #{$namespace}__quantityValue {
+                height: 100%;
+                width: 50px;
+                border-right: 1px solid $secondary-color !important;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+        
+        #{$namespace}__removeButton {
+            border: none;
+            border-top: 1px solid $secondary-color !important;
+            border-left: 1px solid $secondary-color !important;
+            background: none;
+            cursor: pointer;
+            height: 100%;
+            width: 100px;
+            transition: all $transition-base;
+            
+            &:hover {
+                background-color: $secondary-color;
+                color: $primary-color;
+            }
+        }
+    }
+}

@@ -25,14 +25,16 @@ export default function AccountPage() {
       let bottomLeftX = 0;
       let bottomLeftY = 0;
       const headerActionsRect = headerActionsElement.getBoundingClientRect();
+      const tabContainerRect = tabContainerElement.getBoundingClientRect();
 
-      bottomLeftX = headerActionsRect.left;
-      bottomLeftY = headerActionsRect.bottom;
+      tabContainerRect.width = headerActionsRect.width;
+
+      bottomLeftX = headerActionsRect.left + headerActionsRect.width - tabContainerRect.width;
+      bottomLeftY = headerActionsRect.top + headerActionsRect.height - tabContainerRect.height;
 
       tabContainerElement.style.position = 'absolute';
       tabContainerElement.style.left = `${bottomLeftX}px`;
       tabContainerElement.style.top = `${bottomLeftY}px`;
-      tabContainerElement.style.width = `${headerActionsRect.width}px`;
     };
   }
 
