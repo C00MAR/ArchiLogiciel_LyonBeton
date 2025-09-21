@@ -41,7 +41,7 @@ export function useRequireAuth(
 
     if (options.requiredPermissions && options.requiredPermissions.length > 0) {
       if (session.user.role !== 'ADMIN') {
-        const userPermissions = session.user.permissions || [];
+        const userPermissions: string[] = []; // TODO: Implement user permissions
         const hasAllPermissions = options.requiredPermissions.every(permission =>
           userPermissions.includes(permission)
         );

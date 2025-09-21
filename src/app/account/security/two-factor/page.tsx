@@ -64,7 +64,7 @@ export default function TwoFactorPage() {
     onSuccess: (data) => {
       setBackupCodes(data.backupCodes);
       setShowBackupCodes(true);
-      refetchStatus();
+      void refetchStatus();
       resetEnable();
     },
   });
@@ -72,7 +72,7 @@ export default function TwoFactorPage() {
   const disableMutation = api.twoFactor.disable.useMutation({
     onSuccess: () => {
       setStep('status');
-      refetchStatus();
+      void refetchStatus();
       resetVerify();
     },
   });

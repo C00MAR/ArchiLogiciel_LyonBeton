@@ -53,7 +53,7 @@ export default function Verify2FAPage() {
         });
 
         if (result?.ok) {
-          const callbackUrl = searchParams.get('callbackUrl') || '/account';
+          const callbackUrl = searchParams.get('callbackUrl') ?? '/account';
           void router.push(callbackUrl);
         } else {
           setError('Erreur de connexion après vérification 2FA');

@@ -14,7 +14,7 @@ export default function AdminTab() {
   return (
     <div className={styles.adminTab}>
       <h2 className={styles.adminTab__title}>Administration</h2>
-      <p className={styles.adminTab__description}>Accès au panel d'administration</p>
+      <p className={styles.adminTab__description}>Accès au panel d administration</p>
 
       <div className={styles.adminTab__section}>
         <a

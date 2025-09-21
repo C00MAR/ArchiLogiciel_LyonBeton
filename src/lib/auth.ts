@@ -59,7 +59,7 @@ export const authOptions: NextAuthConfig = {
             },
           });
 
-          if (!user || !user.twoFactorEnabled) {
+          if (!user?.twoFactorEnabled) {
             return null;
           }
 

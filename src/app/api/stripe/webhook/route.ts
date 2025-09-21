@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { db } from "~/server/db";
 import { sendEmail, generateOrderConfirmationEmailTemplate, generatePaymentFailedEmailTemplate, generatePaymentConfirmationEmailTemplate } from "~/lib/email";
@@ -27,19 +27,19 @@ export async function POST(req: NextRequest) {
 
     switch (event.type) {
       case "checkout.session.completed":
-        await handleCheckoutSessionCompleted(event.data.object as Stripe.Checkout.Session);
+        await handleCheckoutSessionCompleted(event.data.object);
         break;
 
       case "payment_intent.succeeded":
-        await handlePaymentIntentSucceeded(event.data.object as Stripe.PaymentIntent);
+        await handlePaymentIntentSucceeded(event.data.object);
         break;
 
       case "charge.succeeded":
-        await handleChargeSucceeded(event.data.object as Stripe.Charge);
+        await handleChargeSucceeded(event.data.object);
         break;
 
       case "payment_intent.payment_failed":
-        await handlePaymentIntentFailed(event.data.object as Stripe.PaymentIntent);
+        await handlePaymentIntentFailed(event.data.object);
         break;
 
       default:

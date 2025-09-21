@@ -21,7 +21,7 @@ export default function ProductManagement() {
 
   const createProductMutation = api.admin.createProduct.useMutation({
     onSuccess: () => {
-      refetch();
+      void refetch();
       setIsCreating(false);
       setEditingProduct(null);
       setImages(null);
@@ -30,7 +30,7 @@ export default function ProductManagement() {
 
   const updateProductMutation = api.admin.updateProduct.useMutation({
     onSuccess: () => {
-      refetch();
+      void refetch();
       setIsCreating(false);
       setEditingProduct(null);
       setImages(null);
@@ -39,11 +39,11 @@ export default function ProductManagement() {
 
   const deleteProductMutation = api.admin.deleteProduct.useMutation({
     onSuccess: () => {
-      refetch();
+      void refetch();
     },
   });
 
-  const resetForm = () => {
+  const _resetForm = () => {
     setFormData({
       title: '',
       subtitle: '',
@@ -95,13 +95,13 @@ export default function ProductManagement() {
       fd.set('identifier', formData.identifier);
       if (editingProduct) {
         fd.set('replace', 'true');
-        fd.set('previousImgNumber', String(editingProduct.imgNumber || 0));
+        fd.set('previousImgNumber', String(editingProduct.imgNumber ?? 0));
       }
       Array.from(images).forEach((file) => fd.append('files', file));
       const res = await fetch('/api/admin/upload', { method: 'POST', body: fd });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        alert(`Upload échoué: ${err.error || res.statusText}`);
+        alert(`Upload échoué: ${err.error ?? res.statusText}`);
         return;
       }
     }
@@ -138,7 +138,7 @@ export default function ProductManagement() {
         </button>
       </div>
 
-      {(isCreating || editingProduct) && (
+      {(isCreating ?? editingProduct) && (
         <div>
           <h2>{editingProduct ? 'Modifier le produit' : 'Créer un produit'}</h2>
           <form onSubmit={handleSubmit}>

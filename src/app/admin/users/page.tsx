@@ -9,7 +9,7 @@ export default function UserManagement() {
   const { data: users, refetch } = api.admin.getAllUsers.useQuery();
   const promoteUserMutation = api.admin.promoteUser.useMutation({
     onSuccess: () => {
-      refetch();
+      void refetch();
       setPromotingUser(null);
     },
   });

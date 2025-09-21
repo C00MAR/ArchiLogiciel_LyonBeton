@@ -1,5 +1,5 @@
-@import '../../../styles/variables';
-@import '../../../styles/typography';
+@use '../../../styles/variables' as *;
+@use '../../../styles/typography' as *;
 
 .product-shop {
     display: grid;

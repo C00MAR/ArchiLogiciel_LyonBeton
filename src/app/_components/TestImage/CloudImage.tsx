@@ -6,7 +6,7 @@ type ImageDataProps = {
   width: number;
   height: number;
   alt: string;
-  properties?: Record<string, any>;
+  properties?: Record<string, unknown>;
 };
 
 export default function Page(Props: ImageDataProps) {

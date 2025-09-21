@@ -44,7 +44,7 @@ L'équipe Lyon Béton
 					<p style="margin: 0 0 16px 0;">Bonjour <strong>${customerName}</strong>,</p>
 					<p style="margin: 0 0 16px 0;">Nous vous informons qu'un problème est survenu lors du traitement de votre paiement.</p>
 
-					${orderDetails.id || orderDetails.total ? `
+					${orderDetails.id ?? orderDetails.total ? `
 					<div style="background-color: #e3e3e3; border: 1px solid #e3e3e3; padding: 16px; margin: 20px 0;">
 						${orderDetails.id ? `<p style=\"margin: 0 0 6px 0;\">Commande concernée : <strong>#${orderDetails.id}</strong></p>` : ''}
 						${orderDetails.total ? `<p style=\"margin: 0;\">Montant : <strong>${(orderDetails.total / 100).toFixed(2)}€</strong></p>` : ''}

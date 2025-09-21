@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import cloudinary from '~/server/lib/cloudinary';
 
 export const runtime = 'nodejs';
@@ -67,7 +67,8 @@ export async function POST(req: NextRequest) {
       ok: true,
       uploads,
     });
-  } catch (err: any) {
-    return NextResponse.json({ error: err?.message || 'Upload failed' }, { status: 500 });
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : 'Upload failed';
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 } 

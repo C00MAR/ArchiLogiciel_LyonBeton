@@ -31,7 +31,7 @@ export default function ProductShop({ product }: Props) {
         }
         const key = "guest_cart";
         const raw = typeof window !== "undefined" ? window.localStorage.getItem(key) : null;
-        const cart: Record<string, number> = raw ? JSON.parse(raw) : {};
+        const cart: Record<string, number> = raw ? JSON.parse(raw) as Record<string, number> : {};
         cart[identifier] = (cart[identifier] ?? 0) + quantity;
         if (typeof window !== "undefined") {
             window.localStorage.setItem(key, JSON.stringify(cart));

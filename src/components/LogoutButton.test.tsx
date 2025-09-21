@@ -9,6 +9,7 @@ vi.mocked(signOut).mockImplementation(() => Promise.resolve(undefined));
 
 describe('LogoutButton', () => {
   beforeEach(() => {
+     
     vi.clearAllMocks();
   });
 
@@ -35,6 +36,7 @@ describe('LogoutButton', () => {
     fireEvent.keyDown(button, { key: 'Enter', code: 'Enter' });
     expect(signOut).toHaveBeenCalledWith({ callbackUrl: '/' });
 
+     
     vi.clearAllMocks();
 
     fireEvent.keyDown(button, { key: ' ', code: 'Space' });

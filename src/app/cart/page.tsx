@@ -20,7 +20,7 @@ export default function CartPage() {
     });
 
     const updateItem = api.cart.updateItem.useMutation({
-        onMutate: async ({ identifier, quantity }) => {
+        onMutate: async ({ identifier, quantity }: { identifier: string; quantity: number }) => {
             await utils.cart.getCurrent.cancel();
             const previous = utils.cart.getCurrent.getData();
             if (previous) {
@@ -30,7 +30,7 @@ export default function CartPage() {
                     if (quantity <= 0) {
                         items.splice(index, 1);
                     } else {
-                        items[index] = { ...items[index], quantity } as typeof items[number];
+                        items[index] = { ...items[index]!, quantity };
                     }
                     utils.cart.getCurrent.setData(undefined, { ...previous, items });
                 }
@@ -45,7 +45,7 @@ export default function CartPage() {
         },
     });
     const removeItem = api.cart.removeItem.useMutation({
-        onMutate: async ({ identifier }) => {
+        onMutate: async ({ identifier }: { identifier: string }) => {
             await utils.cart.getCurrent.cancel();
             const previous = utils.cart.getCurrent.getData();
             if (previous) {
@@ -147,7 +147,14 @@ export default function CartPage() {
                             {items.map((it, index) => (
                                 <div key={`${it.cartId}-${it.productId}`} className={styles.cartPage__item}>
                                     <ProductLine
-                                        product={it.product}
+                                        product={{
+                                            ...it.product,
+                                            stripeProductId: it.product.stripeProductId ?? undefined,
+                                            prices: it.product.prices?.map(p => ({
+                                                ...p,
+                                                interval: p.interval ?? undefined
+                                            }))
+                                        }}
                                         quantity={it.quantity}
                                         onQuantityChange={(newQuantity) =>
                                             updateItem.mutate({ identifier: it.product.identifier, quantity: newQuantity })
@@ -203,7 +210,14 @@ export default function CartPage() {
                     {guestItems.map((it) => (
                         <div key={it.product.identifier} className={styles.cartPage__item}>
                             <ProductLine
-                                product={it.product}
+                                product={{
+                                    ...it.product,
+                                    stripeProductId: it.product.stripeProductId ?? undefined,
+                                    prices: it.product.prices?.map(p => ({
+                                        ...p,
+                                        interval: p.interval ?? undefined
+                                    }))
+                                }}
                                 quantity={it.quantity}
                                 onQuantityChange={(newQuantity) =>
                                     setGuestQty(it.product.identifier, newQuantity)
