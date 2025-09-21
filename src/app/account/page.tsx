@@ -18,8 +18,8 @@ export default function AccountPage() {
   };
 
   const positionTabContainer = () => {
-    const headerActionsElement = document.querySelector('.header__actions') as HTMLElement | null;
-    const tabContainerElement = document.querySelector('.account__tabContainer') as HTMLElement | null;
+    const headerActionsElement = document.querySelector('.header__actions')! as HTMLElement;
+    const tabContainerElement = document.querySelector('.account__tabContainer')! as HTMLElement;
 
     if (headerActionsElement && tabContainerElement) {
       let bottomLeftX = 0;

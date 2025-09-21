@@ -32,6 +32,7 @@ const mockUsePathname = vi.mocked(usePathname);
 
 describe('Header', () => {
   beforeEach(() => {
+  
     vi.clearAllMocks();
     mockUsePathname.mockReturnValue('/');
   });

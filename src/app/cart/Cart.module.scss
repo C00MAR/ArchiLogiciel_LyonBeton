@@ -1,4 +1,4 @@
-@import '../../styles/variables';
+@use '../../styles/variables' as *;
 
 .--lastone {
     padding: $spacer-24;

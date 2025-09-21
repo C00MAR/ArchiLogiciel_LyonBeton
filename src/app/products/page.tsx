@@ -8,7 +8,14 @@ async function fetchAllProducts() {
 
 export default async function ProductsPage() {
     const productsData = await fetchAllProducts();
-    const productsList: ProductType[] = productsData ?? [];
+    const productsList: ProductType[] = productsData?.map(product => ({
+        ...product,
+        stripeProductId: product.stripeProductId ?? undefined,
+        prices: product.prices?.map(price => ({
+            ...price,
+            interval: price.interval ?? undefined
+        }))
+    })) ?? [];
 
     return (
         <div className="products-page" style={{marginTop: '96px'}}>

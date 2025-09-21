@@ -14,13 +14,18 @@ export default function OrdersPage() {
 
   const isAdmin = session?.user?.role === 'ADMIN';
 
-  const { data, isLoading, error } = api.orders[isAdmin ? 'getAllOrders' : 'getUserOrders'].useQuery({
+  const queryParams = {
     page,
     limit: 10,
     ...(startDate && { startDate: new Date(startDate) }),
     ...(endDate && { endDate: new Date(endDate) }),
     ...(status && { status: status as any }),
-  });
+  };
+
+  const adminQuery = api.orders.getAllOrders.useQuery(queryParams, { enabled: isAdmin });
+  const userQuery = api.orders.getUserOrders.useQuery(queryParams, { enabled: !isAdmin });
+
+  const { data, isLoading, error } = isAdmin ? adminQuery : userQuery;
 
   const handlePreviousPage = () => {
     if (page > 1) {
@@ -152,7 +157,7 @@ export default function OrdersPage() {
         ) : (
           <div>
             <p>Aucune commande trouvée.</p>
-            {(startDate || endDate || status) && (
+            {(startDate ?? endDate ?? status) && (
               <p>Essayez de modifier vos filtres pour voir plus de résultats.</p>
             )}
           </div>

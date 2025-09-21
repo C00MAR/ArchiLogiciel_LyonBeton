@@ -229,7 +229,7 @@ export const ordersRouter = createTRPCRouter({
 
     return {
       totalOrders,
-      totalRevenue: totalRevenue._sum.total || 0,
+      totalRevenue: totalRevenue._sum.total ?? 0,
       pendingOrders,
       completedOrders,
       recentOrders,

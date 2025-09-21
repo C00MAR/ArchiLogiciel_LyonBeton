@@ -56,6 +56,7 @@ describe('SessionProvider', () => {
 
 describe('CartMergeOnLogin', () => {
   beforeEach(() => {
+     
     vi.clearAllMocks();
     Object.defineProperty(window, 'localStorage', {
       value: {

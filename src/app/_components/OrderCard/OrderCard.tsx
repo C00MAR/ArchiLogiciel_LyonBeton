@@ -41,7 +41,7 @@ export default function OrderCard({ order, showInvoiceLink = true }: OrderCardPr
       CANCELLED: "Annulée",
       REFUNDED: "Remboursée",
     };
-    return statusMap[status as keyof typeof statusMap] || status;
+    return statusMap[status as keyof typeof statusMap] ?? status;
   };
 
   const formatDate = (date: Date) => {

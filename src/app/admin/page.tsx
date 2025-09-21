@@ -16,8 +16,8 @@ export default function AdminDashboard() {
 
       <div>
         <h2>Statistiques</h2>
-        <p>Utilisateurs: {users?.length || 0}</p>
-        <p>Produits: {products?.length || 0}</p>
+        <p>Utilisateurs: {users?.length ?? 0}</p>
+        <p>Produits: {products?.length ?? 0}</p>
       </div>
 
       <div>

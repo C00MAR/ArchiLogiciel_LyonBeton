@@ -4,6 +4,7 @@ import { TRPCError } from "@trpc/server";
 import {
   createTRPCRouter,
   adminProcedure,
+  type createTRPCContext,
 } from "~/server/api/trpc";
 
 const promoteUserSchema = z.object({
@@ -33,11 +34,11 @@ const updateProductSchema = z.object({
 });
 
 async function logAuditAction(
-  ctx: any,
+  ctx: Awaited<ReturnType<typeof createTRPCContext>>,
   action: string,
   entity: string,
   entityId: string,
-  details?: any
+  details?: Record<string, unknown>
 ) {
   await ctx.db.auditLog.create({
     data: {
@@ -45,7 +46,7 @@ async function logAuditAction(
       entity,
       entityId,
       adminId: ctx.session.user.id,
-      details: details || {},
+      details: details ?? {},
     },
   });
 }
@@ -226,7 +227,7 @@ export const adminRouter = createTRPCRouter({
         const publicIds = Array.from({ length: product.imgNumber }, (_, i) => `products/${product.identifier}_${i}`);
         const { v2: cld } = await import('cloudinary');
         await cld.api.delete_resources(publicIds, { resource_type: 'image' });
-      } catch (e) {
+      } catch (_e) {
         // Continue even if Cloudinary deletion fails
       }
 

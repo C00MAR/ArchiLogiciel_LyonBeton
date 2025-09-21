@@ -134,10 +134,49 @@ export const cartRouter = createTRPCRouter({
                 where: { userId },
                 include: {
                     items: {
-                        include: { product: true },
+                        include: {
+                            product: {
+                                include: { prices: true }
+                            }
+                        },
                     },
                 },
             });
-            return cart ?? { id: 0, userId, items: [] };
+            return cart ?? {
+                id: 0,
+                userId,
+                items: [] as Array<{
+                    id: number;
+                    cartId: number;
+                    productId: number;
+                    quantity: number;
+                    product: {
+                        id: number;
+                        createdAt: Date;
+                        updatedAt: Date;
+                        price: number;
+                        title: string;
+                        subtitle: string;
+                        description: string;
+                        identifier: string;
+                        imgNumber: number;
+                        ref: string;
+                        stripeProductId: string | null;
+                        prices: Array<{
+                            id: number;
+                            productId: number;
+                            stripePriceId: string;
+                            amount: number;
+                            currency: string;
+                            type: string;
+                            interval: string | null;
+                            isActive: boolean;
+                            isDefault: boolean;
+                            createdAt: Date;
+                            updatedAt: Date;
+                        }>;
+                    };
+                }>
+            };
         }),
 });

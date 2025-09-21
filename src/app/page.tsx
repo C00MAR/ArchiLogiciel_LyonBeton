@@ -18,15 +18,27 @@ export default async function Home() {
     }
 
     const productsData = await fetchAllProducts();
-    const productsList: ProductType[] = productsData ?? [];
+    const productsList: ProductType[] = productsData?.map(product => ({
+        ...product,
+        stripeProductId: product.stripeProductId ?? undefined,
+        prices: product.prices?.map(price => ({
+            ...price,
+            interval: price.interval ?? undefined
+        }))
+    })) ?? [];
 
     return (
         <HydrateClient>
-            <Hero session={session} />
+            <Hero />
             <CardList
                 productList={productsList}
             />
-            <TestImage />
+            <TestImage
+                src="sample"
+                width={800}
+                height={600}
+                alt="Sample image"
+            />
         </HydrateClient>
     );
 }

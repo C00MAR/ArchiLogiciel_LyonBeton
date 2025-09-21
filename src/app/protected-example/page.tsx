@@ -3,9 +3,9 @@
 import { useRequireAuth } from '~/hooks/useRequireAuth';
 
 export default function ProtectedExamplePage() {
-  const { session, loading, authenticated } = useRequireAuth();
+  const { session, isLoading, authenticated } = useRequireAuth();
 
-  if (loading) {
+  if (isLoading) {
     return <div>Chargement...</div>;
   }
 

@@ -19,7 +19,7 @@ const bemCondition = (
 type ModifierInput = string | string[] | Record<string, boolean | undefined | null>;
 
 export const bemHelper = (block: string) => {
-    if (!block || !block.trim()) {
+    if (!block?.trim()) {
         throw new Error('Block name is required and cannot be empty');
     }
 

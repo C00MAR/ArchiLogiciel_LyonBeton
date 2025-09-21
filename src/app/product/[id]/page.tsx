@@ -2,7 +2,9 @@ import ProductShop from "~/app/_components/ProductShop/ProductShop";
 import ProductSlider from "~/app/_components/ProductSlider/ProductSlider";
 import type { ProductType } from "~/app/types/Products";
 import { api } from "~/trpc/server";
-import type { PageProps } from "next"; // 👈
+interface PageProps {
+  params: Promise<{ id: string }>;
+}
 
 async function fetchProductById(id: string) {
     return api.products.productByIdentifier({ identifier: id });
@@ -10,8 +12,9 @@ async function fetchProductById(id: string) {
 
 export default async function ProductPage({
     params,
-}: PageProps<{ id: string }>) {
-    const productData = await fetchProductById(params.id);
+}: PageProps) {
+    const { id } = await params;
+    const productData = await fetchProductById(id);
 
     if (!productData) {
         return <h1>Produit introuvable</h1>;

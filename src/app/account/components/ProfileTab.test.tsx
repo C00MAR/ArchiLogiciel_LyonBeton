@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { useSession } from 'next-auth/react';
 import ProfileTab from './ProfileTab';
 
@@ -51,6 +51,7 @@ describe('ProfileTab', () => {
   };
 
   beforeEach(() => {
+     
     vi.clearAllMocks();
     mockUseSession.mockReturnValue({
       data: {

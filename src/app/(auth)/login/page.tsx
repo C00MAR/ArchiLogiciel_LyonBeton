@@ -52,7 +52,10 @@ export default function LoginPage() {
                         });
 
                         if (response.ok) {
-                            const userData = await response.json();
+                            const userData = await response.json() as {
+                                twoFactorRequired?: boolean;
+                                userId?: string;
+                            };
                             if (userData.twoFactorRequired) {
                                 router.push(`/auth/verify-2fa?userId=${userData.userId}&callbackUrl=${encodeURIComponent(from ?? '/account')}`);
                                 return;
@@ -149,7 +152,7 @@ export default function LoginPage() {
                         <div>
                             <span>
                                 Pas encore de compte ?{' '}
-                                <a href="/register">S'inscrire</a>
+                                <a href="/register">S inscrire</a>
                             </span>
                         </div>
                     </div>

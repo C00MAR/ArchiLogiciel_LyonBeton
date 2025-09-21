@@ -1,4 +1,5 @@
 import NextAuth, { type NextAuthConfig } from 'next-auth';
+import type { Adapter } from 'next-auth/adapters';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import Credentials from 'next-auth/providers/credentials';
 import Google from 'next-auth/providers/google';
@@ -7,7 +8,7 @@ import { compare } from 'bcryptjs';
 import { prisma } from './prisma';
 
 export const authOptions: NextAuthConfig = {
-  adapter: PrismaAdapter(prisma),
+  adapter: PrismaAdapter(prisma) as Adapter,
   events: {
     async createUser({ user }) {
       if (user.email && !user.emailVerified) {
@@ -59,7 +60,7 @@ export const authOptions: NextAuthConfig = {
             },
           });
 
-          if (!user || !user.twoFactorEnabled) {
+          if (!user?.twoFactorEnabled) {
             return null;
           }
 

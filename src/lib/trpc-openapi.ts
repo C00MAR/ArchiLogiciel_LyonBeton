@@ -1,11 +1,25 @@
 import { z } from "zod";
 
-export function zodToOpenAPI(schema: z.ZodType): any {
+type OpenAPISchema = {
+  type?: string;
+  format?: string;
+  minLength?: number;
+  maxLength?: number;
+  minimum?: number;
+  maximum?: number;
+  properties?: Record<string, OpenAPISchema>;
+  required?: string[];
+  items?: OpenAPISchema;
+  enum?: unknown[];
+  [key: string]: unknown;
+};
+
+export function zodToOpenAPI(schema: z.ZodType): OpenAPISchema {
   const zodType = schema._def;
 
   if (schema instanceof z.ZodString) {
     const def = zodType as z.ZodStringDef;
-    const result: any = { type: 'string' };
+    const result: OpenAPISchema = { type: 'string' };
 
     if (def.checks) {
       for (const check of def.checks) {
@@ -23,7 +37,7 @@ export function zodToOpenAPI(schema: z.ZodType): any {
 
   if (schema instanceof z.ZodNumber) {
     const def = zodType as z.ZodNumberDef;
-    const result: any = { type: 'number' };
+    const result: OpenAPISchema = { type: 'number' };
 
     if (def.checks) {
       for (const check of def.checks) {
@@ -51,7 +65,7 @@ export function zodToOpenAPI(schema: z.ZodType): any {
   }
 
   if (schema instanceof z.ZodObject) {
-    const properties: any = {};
+    const properties: Record<string, OpenAPISchema> = {};
     const required: string[] = [];
 
     for (const [key, value] of Object.entries(zodType.shape())) {
@@ -207,7 +221,7 @@ export function createTRPCProcedureDoc({
   path: string;
   tags?: string[];
 }) {
-  const operation: any = {
+  const operation: Record<string, unknown> = {
     summary,
     description,
     tags,

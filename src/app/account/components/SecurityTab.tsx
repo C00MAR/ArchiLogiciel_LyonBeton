@@ -77,7 +77,7 @@ export default function SecurityTab({ onMessage, isLoading, setIsLoading }: Secu
       <h2 className={styles.securityTab__title}>Sécurité</h2>
 
       <div className={styles.securityTab__section}>
-        <h3 className={styles.securityTab__sectionTitle}>Vérification de l'email</h3>
+        <h3 className={styles.securityTab__sectionTitle}>Vérification de l email</h3>
         <div className={styles.securityTab__emailInfo}>
           <p><strong>Email:</strong> {session?.user?.email}</p>
           <p>

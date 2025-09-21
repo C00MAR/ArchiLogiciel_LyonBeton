@@ -27,6 +27,7 @@ const mockUseSession = vi.mocked(useSession);
 
 describe('Hero', () => {
   beforeEach(() => {
+     
     vi.clearAllMocks();
   });
 
